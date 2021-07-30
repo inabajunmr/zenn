@@ -1,5 +1,5 @@
 ---
-title: "Hydra のデータベース定義を見てみる"
+title: "Hydra のデータベースを構築して定義を見てみる"
 emoji: "📝"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [oauth, oidc, hydra, database]
