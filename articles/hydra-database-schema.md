@@ -1,6 +1,6 @@
 ---
 title: "Hydra のデータベースを構築して定義を見てみる"
-emoji: "📝"
+emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [oauth, oidc, hydra, database]
 published: true
