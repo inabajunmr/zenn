@@ -16,6 +16,15 @@ https://github.com/ory/hydra
 
 本記事では Hydra のデータベース定義を見てみます。
 
+## Hydra のバージョン
+
+```
+hydra version
+Version:    v1.10.3
+Git Hash:   ea931581eb54ab5dc142ea1f81357f25b8e4156a
+Build Time: 2021-07-14T14:42:23Z
+```
+
 ## データベースの構築
 
 構築したデータベースの定義を見るため、データーベースを構築します。
