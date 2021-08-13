@@ -3,7 +3,7 @@ title: "Hydra と Spring Security を連携してOAuth 2.0 のアクセストー
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Hydra", "SpringSecurity", "oauth2"]
-published: false
+published: true
 ---
 
 # Hydra と Spring Security を連携
