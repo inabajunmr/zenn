@@ -1,6 +1,6 @@
 ---
 title: "ターミナルから jwt-cli で JWT を作成したりデコードしたりする"
-emoji: "👏"
+emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["jwt"]
 published: true
