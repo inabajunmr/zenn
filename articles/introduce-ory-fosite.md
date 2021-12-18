@@ -32,9 +32,7 @@ github.com/ory/fosite v0.41.0
 
 とりあえず[クイックスタート]([https://github.com/ory/fosite#quickstart](https://github.com/ory/fosite#quickstart))と[サンプル実装](https://github.com/ory/fosite-example)を見ながら認可エンドポイント、トークンエンドポイント、イントロスペクションを実装して動かしてみます。
 
-## 認可エンドポイント
-
-### 初期設定
+## 初期設定
 
 ```go
 package oauth2
@@ -53,7 +51,7 @@ var config = &compose.Config{}
 var oauth2Provider = compose.ComposeAllEnabled(config, storage.NewExampleStore(), secret, privateKey)
 ```
 
-### 認可エンドポイントを定義
+## 認可エンドポイントを定義
 
 ログイン処理は自前で実装します。今回はクエリパラメーターに指定したユーザーがログインしているものとします。
 
@@ -94,7 +92,7 @@ func AuthorizationEndpoint(rw http.ResponseWriter, req *http.Request) {
 }
 ```
 
-### トークンエンドポイントを定義
+## トークンエンドポイントを定義
 
 ```go
 package oauth2
@@ -123,7 +121,7 @@ func TokenEndpoint(rw http.ResponseWriter, req *http.Request) {
 }
 ```
 
-### イントロスペクションエンドポイントを定義
+## イントロスペクションエンドポイントを定義
 
 ```go
 package oauth2
@@ -147,7 +145,7 @@ func IntrospectionEndpoint(rw http.ResponseWriter, req *http.Request) {
 }
 ```
 
-### ハンドラーを定義
+## ハンドラーを定義
 
 ```go
 package main
@@ -167,7 +165,7 @@ func main() {
 }
 ```
 
-### 認可リクエスト〜トークンリクエスト〜イントロスペクション
+## 動かしてみる
 
 認可リクエストしてみます。
 
