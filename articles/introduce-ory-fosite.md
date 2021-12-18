@@ -319,6 +319,8 @@ type RefreshTokenStorage interface {
 }
 ```
 
+## 実装する
+
 [サンプル](https://github.com/ory/fosite/blob/4e2c03d3f6dcb3a3b50e7ea245128edde7ebf959/storage/memory.go)とあんまり変わりがないですが、インメモリで全部安直に実装するとこんな感じになりました。認可コード周りはインターフェース的には必要なんですが、今回は多分いらない気がしたので実装していません。
 
 ```go
