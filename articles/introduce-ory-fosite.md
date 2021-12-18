@@ -6,7 +6,7 @@ topics: ["oauth2", "Hydra", "openidconnect", "ory", "go"]
 published: false
 ---
 
-本記事は [Digital Identity技術勉強会 #iddanceのカレンダー](https://qiita.com/advent-calendar/2021/iddance) 20日目の記事です。
+本記事は [Digital Identity技術勉強会 #iddance](https://qiita.com/advent-calendar/2021/iddance) のアドベントカレンダー20日目の記事です。
 
 # ory/fosite について
 
