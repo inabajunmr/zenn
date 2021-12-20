@@ -3,19 +3,19 @@ title: "Go 製の認可サーバー、IdP 実装用ライブラリ Fosite"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["oauth2", "Hydra", "openidconnect", "ory", "go"]
-published: false
+published: true
 ---
 
 本記事は [Digital Identity技術勉強会 #iddance](https://qiita.com/advent-calendar/2021/iddance) のアドベントカレンダー20日目の記事です。
 
 # ory/fosite について
 
-[https://github.com/ory/fosite](https://github.com/ory/fosite)
+[ory/fosite: Extensible security first OAuth 2.0 and OpenID Connect SDK for Go.](https://github.com/ory/fosite)
 
 OAuth 2.0/OIDC の 認可サーバー、IdP 実装のための Go のライブラリです。
 エンドポイントそのものは直接実装せず、プロトコルに関連するリクエストを http のハンドラー経由でライブラリに渡してあげるとパースしたり必要なものを永続化したりレスポンスを生成してくれます。
 
-[Motivation]([https://github.com/ory/fosite#motivation](https://github.com/ory/fosite#motivation)) によると、そもそも Hydra 用のライブラリとして開発されたようです。
+[Motivation](https://github.com/ory/fosite#motivation) によると、そもそも Hydra 用のライブラリとして開発されたようです。
 [Hydra](https://github.com/ory/hydra) については以前 [Hydra による OAuth 2.0 の認可サーバー/ OIDC の IdP の実装イメージ](https://zenn.dev/inabajunmr/articles/7f5f5a979f20b6)で紹介させていただきました。
 
 
@@ -169,37 +169,37 @@ func main() {
 
 認可リクエストしてみます。
 
-```go
+```
 http://localhost:3846/oauth2/auth?client_id=my-client&response_type=code&state=64aa6f2d-52d1-ec96-04b7-832f8720e7a7&username=inaba&redirect_uri=http://localhost:3846/callback
 ```
 
 認可レスポンスが返ってきました。
 
-```go
+```
 http://localhost:3846/callback?code=NbAK7SwO-zzwOD-u_Qr8_hlVJfwelvMtq4287QvBtoI.CHnA8zT8occbmyux3Fo9iyL_sP_-EeJLmr16u6REm-E&scope=&state=64aa6f2d-52d1-ec96-04b7-832f8720e7a7
 ```
 
 トークンリクエストしてみます。
 
-```go
+```
 curl -d 'grant_type=authorization_code' -d 'redirect_uri=http://localhost:3846/callback' -d 'code=NbAK7SwO-zzwOD-u_Qr8_hlVJfwelvMtq4287QvBtoI.CHnA8zT8occbmyux3Fo9iyL_sP_-EeJLmr16u6REm-E' -u 'my-client:foobar' localhost:3846/oauth2/token
 ```
 
 トークンレスポンスが返ってきました。
 
-```go
+```json
 {"access_token":"KSQutKDWU0kL1gZW2kDUQoPDeGjuJOgCUkdeUs8orkc.IEyAMdYP2H9gPpTaZXLQ1KSU-_WrcMbB7SMq1ktjDFs","expires_in":3600,"scope":"","token_type":"bearer"}
 ```
 
 イントロスペクションしてみます。
 
-```go
+```
 curl -d 'token=KSQutKDWU0kL1gZW2kDUQoPDeGjuJOgCUkdeUs8orkc.IEyAMdYP2H9gPpTaZXLQ1KSU-_WrcMbB7SMq1ktjDFs' -u 'my-client:foobar' localhost:3846/oauth2/introspect
 ```
 
 イントロスペクションできました。
 
-```go
+```json
 {"active":true,"client_id":"my-client","exp":1639206763,"iat":1639203162,"username":"inaba"}
 ```
 
@@ -262,6 +262,8 @@ func OAuth2ClientCredentialsGrantFactory(config *Config, storage interface{}, st
 	}
 }
 ```
+（[OAuth2ClientCredentialsGrantFactory](https://github.com/ory/fosite/blob/a6bfb921ebc746ba7a1215e32fb42a2c0530a2bf/compose/compose_oauth2.go#L50) より引用）
+
 
 ここからクライアントクレデンシャルのためには [AccessTokenStorage](https://github.com/ory/fosite/blob/master/handler/oauth2/storage.go#L54) を実装する必要があることがわかります。
 
@@ -274,6 +276,8 @@ type AccessTokenStorage interface {
 	DeleteAccessTokenSession(ctx context.Context, signature string) (err error)
 }
 ```
+（[AccessTokenStorage](https://github.com/ory/fosite/blob/master/handler/oauth2/storage.go#L54) より引用）
+
 
 イントロスペクションも同様に追いかけると [CoreStorage](https://github.com/ory/fosite/blob/72bff7f33ee8c3a4a8806cc266ca7299ff1785d4/handler/oauth2/storage.go#L30) のインターフェースを実装する必要があるようです。
 
@@ -318,6 +322,8 @@ type RefreshTokenStorage interface {
 	DeleteRefreshTokenSession(ctx context.Context, signature string) (err error)
 }
 ```
+
+（[CoreStorage](https://github.com/ory/fosite/blob/72bff7f33ee8c3a4a8806cc266ca7299ff1785d4/handler/oauth2/storage.go#L30) より引用）
 
 ## 実装する
 
@@ -432,7 +438,7 @@ curl -d 'grant_type=client_credentials' -u 'default-client:secret' localhost:384
 
 発行できました。
 
-```
+```json
 {"access_token":"uxrxObB9G49rHV6bPfviWHMuiLgimbOt9E9B3MQi6Nc.m1ySRCqfv3ZOxoT0WNlLQ6UGmQmuZEZ7bo8p-6yqruA","expires_in":3599,"scope":"","token_type":"bearer"}%
 ```
 
@@ -444,7 +450,7 @@ curl -d 'token=uxrxObB9G49rHV6bPfviWHMuiLgimbOt9E9B3MQi6Nc.m1ySRCqfv3ZOxoT0WNlLQ
 
 イントロスペクションできました。
 
-```
+```json
 {"active":true,"client_id":"default-client","exp":1639224068,"iat":1639220468}
 ```
 
@@ -542,6 +548,7 @@ func Compose(config *Config, storage interface{}, strategy interface{}, hasher f
 	return f
 }
 ```
+（[compose.Compose](https://github.com/ory/fosite/blob/cf02af977681fd667b33f8e131891f6746d0b9da/compose/compose.go) より引用）
 
 config はいわゆる設定、storage は先程実装した `InMemoryStorage` のような、永続化層の実装となり、これらを使って[fosite.Fosite](https://github.com/ory/fosite/blob/master/fosite.go#L89)  を組み立てた後、渡したファクトリーによってハンドラーを生成しています。
 
@@ -566,6 +573,8 @@ func OAuth2ClientCredentialsGrantFactory(config *Config, storage interface{}, st
 	}
 }
 ```
+（[OAuth2ClientCredentialsGrantFactory](https://github.com/ory/fosite/blob/0a48821b156f4a5dffa0f7149d30d5cf02636f37/compose/compose_oauth2.go#L50) より引用）
+
 
 ### Strategy と Config について
 
@@ -578,3 +587,8 @@ func OAuth2ClientCredentialsGrantFactory(config *Config, storage interface{}, st
 [https://github.com/ory/fosite/issues/566](https://github.com/ory/fosite/issues/566) にもあるのですが、ドキュメントだけ読んで利用できるかというとちょっと厳しいような気がします。
 現時点で実際に利用する場合、少なくとも [compose.Compose](https://github.com/ory/fosite/blob/cf02af977681fd667b33f8e131891f6746d0b9da/compose/compose.go) 周りやストレージのサンプル実装などを見る必要がありそうです。
 [Storage の実装で返すエラーが暗黙的に指定](https://github.com/ory/fosite/blob/a6bfb921ebc746ba7a1215e32fb42a2c0530a2bf/handler/pkce/handler.go#L143)されていたりするところがあるので、利用するエンドポイントとハンドラーのコードは一通り確認してから利用したほうが無難な気がします。
+
+# 参考資料
+
+* [ory/fosite: Extensible security first OAuth 2.0 and OpenID Connect SDK for Go.](https://github.com/ory/fosite)
+* [ORY Fosite Example Server](https://github.com/ory/fosite-example)
