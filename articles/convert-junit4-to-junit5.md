@@ -35,7 +35,7 @@ $ java -jar convert-junit4-to-junit5-fat.jar -w 配下にテストクラスが�
 ```
 
 
-[junit-pioneer/convert-junit4-to-junit5](https://github.com/junit-pioneer/convert-junit4-to-junit5#running-the-update-from-the-command-line)
+その他オプションについての詳細は[こちら](https://github.com/junit-pioneer/convert-junit4-to-junit5#running-the-update-from-the-command-line)を参照ください。
 
 # 結果
 spring-security-oauth2 に試した結果以下のような差分になりました。
