@@ -29,6 +29,19 @@ brew install zstd
 export LIBRARY_PATH=$(brew --prefix zstd)/lib:$LIBRARY_PATH
 ```
 
+# 試した環境
+
+```
+$ sw_vers
+ProductName:    macOS
+ProductVersion: 11.4
+BuildVersion:   20F71
+$ carton --version
+carton v1.0.34
+$ perl --version
+This is perl 5, version 30, subversion 2 (v5.30.2) built for darwin-thread-multi-2level
+```
+
 # 一連の流れ
 
 インストール時に実行した一連のコマンドは以下のようになりました。
