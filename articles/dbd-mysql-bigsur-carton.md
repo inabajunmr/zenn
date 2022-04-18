@@ -58,3 +58,19 @@ $ export LIBRARY_PATH=$(brew --prefix zstd)/lib:$LIBRARY_PATH
 ```
 
 xxx は実行環境のユーザー名になると思います。
+
+# 追記（WARNING: xxx/perl5.30.2 is loading libcrypto in an unsafe way が出た場合）
+
+参考: https://github-wiki-see.page/m/kyzn/PRC/wiki/Development-Instructions-(macOS-Apple-Silicon)
+
+```
+$ brew --prefix openssl
+/usr/local/opt/openssl@3
+```
+
+openssl のパスを確認し、以下のように symlink を貼ったらインストールできました。
+
+```
+$ sudo ln -s /usr/local/opt/openssl@3/lib/libssl.dylib /usr/local/lib/libssl.dylib
+$ sudo ln -s /usr/local/opt/openssl@3/lib/libcrypto.3.dylib /usr/local/lib/libcrypto.dylib
+```
