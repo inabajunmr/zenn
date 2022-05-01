@@ -8,10 +8,8 @@ Zenn にアップロードしている記事の管理用リポジトリ
 記事の作成
 
 ```
-npx zenn new:article
+npx zenn new:article --slug xxx
 ```
-
-プレビュー
 
 ```
 npx zenn preview
@@ -22,4 +20,3 @@ CLI のアップデート
 ```
 npm install zenn-cli@latest
 ```
-
