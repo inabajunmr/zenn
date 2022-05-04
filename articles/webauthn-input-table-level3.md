@@ -67,7 +67,7 @@ Relying Party を表現するディクショナリー。
 | フィールド名 | 型 | 必須 | 説明 |
 | --- | --- | --- | --- |
 | type | DOMString | 必須 | public-key" を指定する。
-| alg | COSEAlgorithmIdentifier | 必須 | 暗号アルゴリズムの識別番号を指定する。番号は [COSE Algorithms](https://www.iana.org/assignments/cose/cose.xhtml#algorithms) を参照すること。"RS256" なら -256 を指定する。 |
+| alg | COSEAlgorithmIdentifier | 必須 | 暗号アルゴリズムの識別番号を指定する。番号は [COSE Algorithms](https://www.iana.org/assignments/cose/cose.xhtml#algorithms) を参照すること。"RS256" なら -257 を指定する。 |
 
 ## AuthenticatorSelectionCriteria
 
