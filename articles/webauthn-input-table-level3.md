@@ -7,6 +7,7 @@ published: true
 ---
 
 WebAuthn で get()、create() する時のパラメーターがそれぞれなんなのかをまとめました。
+
 [Web Authentication: An API for accessing Public Key Credentials Level 3 Editor’s Draft, 6 April 2022](https://w3c.github.io/webauthn/) の [5. Web Authentication API](https://w3c.github.io/webauthn/#sctn-api) を参考にしています。
 説明は要点を絞っているので正確な内容は [仕様](https://w3c.github.io/webauthn/#sctn-api) を参照ください。
 
