@@ -2,7 +2,7 @@
 title: "WebAuthn の get() と create() のパラメーター一覧（Level 3）"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ['webauthn']
+topics: ['webauthn','authentication']
 published: true
 ---
 
@@ -26,8 +26,10 @@ navigator.credentials.create() のオプション。
 | timeout | unsigned long |  | API 呼び出しの待機時間。 |
 | excludeCredentials | sequence<[PublicKeyCredentialDescriptor](#publickeycredentialdescriptor)>       |  | ここに指定したクレデンシャルは認証器によって新しく作成されない。Relying Party が保持している、user.id に紐づくクレデンシャルをここに指定すると、同じユーザーアカウントが同じ認証器で複数のクレデンシャルを作成するのを防げる。 |
 | authenticatorSelection | [AuthenticatorSelectionCriteria](#authenticatorselectioncriteria) |  | 認証器が満たさなければいけない機能もしくは設定。プラットフォーム認証器じゃないと駄目とか、user verification できないと駄目とか、discoverable credential を期待する、みたいなものを指定できる。 |
-| attestation | DOMString |  | アテステーションを Relying Party にどう渡してほしいかを設定する。アテステーションなし、アテステーションステートメントの発行はクライアントに任せる（🍙）、認証器が発行したアテステーション、などを選べる。 |
+| attestation | DOMString |  | アテステーションを Relying Party にどう渡してほしいかを設定する。アテステーション不要なら "none"、アテステーションステートメントの発行をどうするかはクライアントに任せるなら "indirect"、認証器が発行したアテステーションなら "direct"、組織内で利用可能な認証器をコントロールするなら "enterprise" を指定する。 |
 | extensions | AuthenticationExtensionsClientInputs |  | クライアント、認証器に追加の処理を要求する場合に使う拡張領域。 |
+
+※ attestation の indirect と enterprise については挙動を理解できていないため記載に自信がありません。何か間違っていたら教えて下さい。
 
 ## PublicKeyCredentialRequestOptions
 
