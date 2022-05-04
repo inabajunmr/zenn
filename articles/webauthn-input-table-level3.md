@@ -91,4 +91,4 @@ Relying Party を表現するディクショナリー。
 | --- | --- | --- | --- |
 | type | DOMString | 必須 | public-key" を指定する。
 | id | BufferSource | 必須 | 公開鍵クレデンシャルの credential ID を指定する。
-| transports | sequence<DOMString> | クレデンシャルに紐づく認証器がクライアントとどのようにやり取りするか。"usb"、"nfc"、"ble"、"internal" のいずれかを指定する。 |
+| transports | sequence<DOMString> | | クレデンシャルに紐づく認証器がクライアントとどのようにやり取りするか。"usb"、"nfc"、"ble"、"internal" のいずれかを指定する。 |
