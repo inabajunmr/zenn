@@ -2,7 +2,7 @@
 title: "SSE Framework, SET, CAEP, RISC"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["openid", "security", "sse framework", "set", "caep", "risc"]
+topics: ["openid", "security", "set", "caep", "risc"]
 published: true
 ---
 
@@ -46,7 +46,9 @@ published: true
 
 SSE Framework に定義されているエンドポイントから事前に設定を行います。
 
-![RP が IdP にイベントの通知方法や対象ユーザーを指定するシーケンス](http://www.plantuml.com/plantuml/svg/lP2zJZ9158RxlOfp0zzt0HG62arCA0Z4pcQ02Qxk3nbdrTAPNGCeHaD4uuz68j455HEn8K6ucECkK74BpgA5N81savoyp_i-4z_aX777D3JYSDjop2nbcfPEmRy5MCwdOe1k2UKToXxAHtIFqMrhbiqfCBsmncEGoIp24YCctRRP1g1uMBM2piLeq49HHrb5UO3IHxUBRWNTQvJDsRkiaHpNjmYdKOd6A7UO1MF_ESgU-2Wwi99E0aelU1a4moiKPoZkKNWHBsASVs4cUuSVmqPusWkxTHHj5AsvxUeysHNVP-c5JwypaFSJeRf6VcVIk45P2wibDM3QBnTjmz2jGkG3YKGIWcObl7oRYyaQYYDbEErNVkj3vbmoJdQTvZYeul7mFTY_LJDrYsH9dEuGisZG_pdR16NpvolZrCexfl49)
+<!-- ![RP が IdP にイベントの通知方法や対象ユーザーを指定するシーケンス](http://www.plantuml.com/plantuml/svg/lP2zJZ9158RxlOfp0zzt0HG62arCA0Z4pcQ02Qxk3nbdrTAPNGCeHaD4uuz68j455HEn8K6ucECkK74BpgA5N81savoyp_i-4z_aX777D3JYSDjop2nbcfPEmRy5MCwdOe1k2UKToXxAHtIFqMrhbiqfCBsmncEGoIp24YCctRRP1g1uMBM2piLeq49HHrb5UO3IHxUBRWNTQvJDsRkiaHpNjmYdKOd6A7UO1MF_ESgU-2Wwi99E0aelU1a4moiKPoZkKNWHBsASVs4cUuSVmqPusWkxTHHj5AsvxUeysHNVP-c5JwypaFSJeRf6VcVIk45P2wibDM3QBnTjmz2jGkG3YKGIWcObl7oRYyaQYYDbEErNVkj3vbmoJdQTvZYeul7mFTY_LJDrYsH9dEuGisZG_pdR16NpvolZrCexfl49) -->
+
+![RP が IdP にイベントの通知方法や対象ユーザーを指定するシーケンス](/images/sse_config.png)
 
 ### 3 の設定
 
@@ -99,11 +101,15 @@ Authorization: Bearer eyJ0b2tlbiI6ImV4YW1wbGUifQo=
 
 これがイベントが発生するきっかけになります。このシーケンス自体は仕様とは無関係です。
 
-![エンドユーザーが認証器を解除して再ログインした結果 AAL が変わるシーケンス](https://plantuml-server.kkeisuke.dev/svg/SoWkIImgAStDuU9AB2t9polDJKejuihBBqbLI4mkoYykjb9mTFGnuk8ABKujKj2rK_1C2R1ISC_FJyz9LN0iBSb8pIl9J4uioIzIUDouxiNonIzdBk5AJ2x9B4i46W5Kp5MKMb9Qb8TcmEFcjO-RDZnkMlIuQTdZvWwYT4nytBJpSVFwnyrx7ZTtFksTyM9Pu_Cj2nutBd_QrWipRydZvitO3KFtaY4NbqDgNWhGvm00.svg)
+<!-- ![エンドユーザーが認証器を解除して再ログインした結果 AAL が変わるシーケンス](https://plantuml-server.kkeisuke.dev/svg/SoWkIImgAStDuU9AB2t9polDJKejuihBBqbLI4mkoYykjb9mTFGnuk8ABKujKj2rK_1C2R1ISC_FJyz9LN0iBSb8pIl9J4uioIzIUDouxiNonIzdBk5AJ2x9B4i46W5Kp5MKMb9Qb8TcmEFcjO-RDZnkMlIuQTdZvWwYT4nytBJpSVFwnyrx7ZTtFksTyM9Pu_Cj2nutBd_QrWipRydZvitO3KFtaY4NbqDgNWhGvm00.svg) -->
+
+![エンドユーザーが認証器を解除して再ログインした結果 AAL が変わるシーケンス](/images/sse_aal_change.png)
 
 ## AAL 変更イベントを通知
 
-![RP が IdP にポーリングして AAL 変更イベントを取得](http://www.plantuml.com/plantuml/svg/XP3FIW9H5CRtzodE2xHfwIAKS56qa19QJpgOe3DnlTF-dblfz8UYiEXFH2HMGaguChGUvdF6MlaANNNH8gBTvNBExtU-BrbHZbH1kIISGFbUKDvmfH2h6PfReALy9a5RVgbKz0h2yvLBibZOL0bQIsS9klsrUpJyk8_FUt6tFkxN9fFZVWZz6BMlHk_Fq7Nm8NGJUWTy07w2wSA4CBVWnlHT4qvE5RSTYxOo8LqLI8zIgHMA6Y7u6Fe1-WvScovSpdP-d_A7aPRNi_QkVt2VrTPmS0RTeSLKElC3ir74JENaf5-f9CYs4bs_nJUXpHvLcwEJlHbzdi2dyIk3zIIdQO47C7rmp_x3lC0OS0VwOYhVdu2JhfUtfNy3)
+<!-- ![RP が IdP にポーリングして AAL 変更イベントを取得](http://www.plantuml.com/plantuml/svg/XP3FIW9H5CRtzodE2xHfwIAKS56qa19QJpgOe3DnlTF-dblfz8UYiEXFH2HMGaguChGUvdF6MlaANNNH8gBTvNBExtU-BrbHZbH1kIISGFbUKDvmfH2h6PfReALy9a5RVgbKz0h2yvLBibZOL0bQIsS9klsrUpJyk8_FUt6tFkxN9fFZVWZz6BMlHk_Fq7Nm8NGJUWTy07w2wSA4CBVWnlHT4qvE5RSTYxOo8LqLI8zIgHMA6Y7u6Fe1-WvScovSpdP-d_A7aPRNi_QkVt2VrTPmS0RTeSLKElC3ir74JENaf5-f9CYs4bs_nJUXpHvLcwEJlHbzdi2dyIk3zIIdQO47C7rmp_x3lC0OS0VwOYhVdu2JhfUtfNy3) -->
+
+![RP が IdP にポーリングして AAL 変更イベントを取得](/images/sse_set_polling.png)
 
 配信されたイベントは以下のようになります。（実際には JWT）
 
