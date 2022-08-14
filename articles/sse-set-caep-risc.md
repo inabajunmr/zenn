@@ -2,8 +2,8 @@
 title: "SSE Framework, SET, CAEP, RISC"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["openid", "security"]
-published: false
+topics: ["openid", "security", "sse framework", "set", "caep", "risc"]
+published: true
 ---
 
 # Shared Signals and Events
@@ -11,7 +11,7 @@ published: false
 [Shared Signals and Events – A Secure Webhooks Framework](https://openid.net/wg/sse/) では、
 
 * SAML とか OIDC での ID のフェデレーションだとアクセスの妥当性をログイン時に評価される
-* なんだけど、セッションは長時間続くことがあるのでセッションが確立してる間にーザーの属性が変わることがある
+* なんだけど、セッションは長時間続くことがあるのでセッションが確立してる間にユーザーの属性が変わることがある
 * ので、ログイン時の古い情報を基にアクセス制御をするとセキュリティ上よくない
 
 といった文脈でステータスの変更を通知するのに [CAEP](https://openid.net/specs/openid-caep-specification-1_0.html) が出てきたり、
@@ -28,19 +28,119 @@ published: false
 
 ちなみに CAEP と RISC の立ち位置の差はよくわかってないので、それについては特に何も書いてないです。
 
+:::message
+紹介している仕様は Security Event Token (SET) 関連以外全部 draft です
+:::
+
 # どのようなシーケンスになるのか
+
+送信者や受信者、イベントの対象が実際に誰になるのかは仕様上特に決まっていないのですが、ここでは例として具体的に
+
+* RP がイベントを受信する側(rp.example.com)
+* IdP がイベントを送信する側(idp.example.com)
+* イベントが通知される対象のユーザーアカウントの Subject は inaba@example.com
+
+とします。
+
+## 設定
+
+SSE Framework に定義されているエンドポイントから事前に設定を行います。
+
+![RP が IdP にイベントの通知方法や対象ユーザーを指定するシーケンス](http://www.plantuml.com/plantuml/svg/lP2zJZ9158RxlOfp0zzt0HG62arCA0Z4pcQ02Qxk3nbdrTAPNGCeHaD4uuz68j455HEn8K6ucECkK74BpgA5N81savoyp_i-4z_aX777D3JYSDjop2nbcfPEmRy5MCwdOe1k2UKToXxAHtIFqMrhbiqfCBsmncEGoIp24YCctRRP1g1uMBM2piLeq49HHrb5UO3IHxUBRWNTQvJDsRkiaHpNjmYdKOd6A7UO1MF_ESgU-2Wwi99E0aelU1a4moiKPoZkKNWHBsASVs4cUuSVmqPusWkxTHHj5AsvxUeysHNVP-c5JwypaFSJeRf6VcVIk45P2wibDM3QBnTjmz2jGkG3YKGIWcObl7oRYyaQYYDbEErNVkj3vbmoJdQTvZYeul7mFTY_LJDrYsH9dEuGisZG_pdR16NpvolZrCexfl49)
+
+### 3 の設定
+
+RP は IdP に以下のようなリクエストをします。
+
+```json
+POST /sse/stream HTTP/1.1
+Host: idp.example.com
+Authorization: Bearer eyJ0b2tlbiI6ImV4YW1wbGUifQo=
+
+{
+  "iss": "idp.example.com",
+  "aud": ["rp.example.com"],
+  "delivery": {
+    "delivery_method":
+      "https://schemas.openid.net/secevent/risc/delivery-method/poll",
+      "url": "https://idp.example.com/events"
+  },
+  "events_requested": [
+    "https://schemas.openid.net/secevent/caep/event-type/assurance-level-change"
+  ]
+}
+```
+
+delivery_method で polling によるイベント通知を望んでいること、event_requested で CAEP の AAL 変更イベントの通知を望んでいることを指定しています。
+
+
+### 5 の Subject 追加
+
+RP は IdP に以下のようなリクエストをします。
+
+```json
+POST /sse/subjects:add HTTP/1.1
+Host: transmitter.example.com
+Authorization: Bearer eyJ0b2tlbiI6ImV4YW1wbGUifQo=
+
+{
+    "subject": {
+        "format": "iss_sub",
+        "iss": "idp.example.com",
+        "sub": "inaba@example.com"
+    },
+    "verified": true
+}
+```
+
+これによりこのストリームで inaba@example.com についてのイベントが通知されるようになります。
+
+## ユーザーの操作により AAL が変わる
+
+これがイベントが発生するきっかけになります。このシーケンス自体は仕様とは無関係です。
+
+![エンドユーザーが認証器を解除して再ログインした結果 AAL が変わるシーケンス](https://plantuml-server.kkeisuke.dev/svg/SoWkIImgAStDuU9AB2t9polDJKejuihBBqbLI4mkoYykjb9mTFGnuk8ABKujKj2rK_1C2R1ISC_FJyz9LN0iBSb8pIl9J4uioIzIUDouxiNonIzdBk5AJ2x9B4i46W5Kp5MKMb9Qb8TcmEFcjO-RDZnkMlIuQTdZvWwYT4nytBJpSVFwnyrx7ZTtFksTyM9Pu_Cj2nutBd_QrWipRydZvitO3KFtaY4NbqDgNWhGvm00.svg)
+
+## AAL 変更イベントを通知
+
+![RP が IdP にポーリングして AAL 変更イベントを取得](http://www.plantuml.com/plantuml/svg/XP3FIW9H5CRtzodE2xHfwIAKS56qa19QJpgOe3DnlTF-dblfz8UYiEXFH2HMGaguChGUvdF6MlaANNNH8gBTvNBExtU-BrbHZbH1kIISGFbUKDvmfH2h6PfReALy9a5RVgbKz0h2yvLBibZOL0bQIsS9klsrUpJyk8_FUt6tFkxN9fFZVWZz6BMlHk_Fq7Nm8NGJUWTy07w2wSA4CBVWnlHT4qvE5RSTYxOo8LqLI8zIgHMA6Y7u6Fe1-WvScovSpdP-d_A7aPRNi_QkVt2VrTPmS0RTeSLKElC3ir74JENaf5-f9CYs4bs_nJUXpHvLcwEJlHbzdi2dyIk3zIIdQO47C7rmp_x3lC0OS0VwOYhVdu2JhfUtfNy3)
+
+配信されたイベントは以下のようになります。（実際には JWT）
+
+```json
+{
+    "iss": "idp.example.com",
+    "jti": "07efd930f0977e4fcc1149a733ce7f78",
+    "iat": 1615305159,
+    "aud": "rp.example.net",
+    "events": {
+        "https://schemas.openid.net/secevent/caep/event-type/assurance-level-change": {
+            "subject": {
+                "format": "iss_sub",
+                "iss": "idp.example.com",
+                "sub": "inaba@example.com"
+            },
+            "current_level": "nist-aal1",
+            "previous_level": "nist-aal2",
+            "change_direction": "decrease",
+            "initiating_entity": "user",
+            "event_timestamp": 1615304991643
+        }
+    }
+}
+```
 
 # 各仕様ざっくり
 
 * [OpenID Shared Signals and Events Framework Specification 1.0 - draft 01](https://openid.net/specs/openid-sse-framework-1_0-ID1.html)
-    * イベントをやり取りするフレームワーク
+    * イベントをやり取りするためのフレームワーク
     * 何に関するどういったイベントをどうやって送信してもらうかをリクエストするエンドポイントの定義とかがある
 * [Security Event Token (SET)](https://datatracker.ietf.org/doc/html/rfc8417)
     * セキュリティイベントを表すデータの構造
     * JWT
-* [Push-Based Security Event Token (SET) Delivery Using HTTP](https://datatracker.ietf.org/doc/html/draft-ietf-secevent-http-push-10)
+* [Push-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8935.html)
     * SET の配送方法（push）
-* [Poll-Based Security Event Token (SET) Delivery Using HTTP](https://datatracker.ietf.org/doc/html/draft-ietf-secevent-http-poll)
+* [Poll-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8936)
     * SET の配送方法（polling）
 * [OpenID RISC Profile Specification 1.0 - draft 02](https://openid.net/specs/openid-risc-profile-specification-1_0-02.html)
     * イベントがいろいろ定義されてる
@@ -200,10 +300,9 @@ Transmitter の API 呼び出しには OAuth 2.0 のアクセストークンを�
 SET はデータ構造で、Subject に対するイベントを表現します。JWT なので署名や暗号化が可能です。
 
 SET を受信したら受信者は何らかのアクションを行うことができますが、送信者が受信者に何か操作を命令するものではなく、受信してどうするか、はあくまで受信者側の操作となります。
-
 SET の配送方法やイベントの構造は別の仕様があります。
 
-# [Security Event Token (SET)](https://datatracker.ietf.org/doc/html/rfc8417)
+## SET の構造
 
 SET はいくつかのクレームが定義された JWT となります。
 
@@ -214,9 +313,11 @@ SET はいくつかのクレームが定義された JWT となります。
 * toe
     * イベントの発生日時
 
-# [Push-Based Security Event Token (SET) Delivery Using HTTP](https://datatracker.ietf.org/doc/html/draft-ietf-secevent-http-push-10)
+# [Push-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8935.html)
 
 SET の配送方法として push と poll があります。こちらは push の仕様となります。この仕様では transmitter が recipient がホストするエンドポイントに SET を POST することで通知を行います。
+
+![transmitter が recipient に POST でイベントを送信](https://plantuml-server.kkeisuke.dev/svg/SoWkIImgAStDuU9AB2t9polDJKejuk8AAKhCAyxDB2b9BLBGjLC8IatEBCXCpIknKdZSjEHnyyp7pPiVDtTm9IQNP9ObbgGY570LfPQK5kKfFEsV_cJ_miUDqnytxWEJyxcu75BpKe0s0G00.svg)
 
 recipient が SET をパースできるかとか issuer とか audience が想定通りかとか署名検証できるかとかそういう検証をしようね、みたいな話とか、エラー時はこういうレスポンスをしようね、みたいな話が書いてあります。
 
@@ -242,11 +343,13 @@ YyNkE2NTYzNzQifSwicmVhc29uIjoiaGlqYWNraW5nIn19fQ
 Y4rXxMD406P2edv00cr9Wf3_XwNtLjB9n-jTqN1_lLc
 ```
 
-# [Poll-Based Security Event Token (SET) Delivery Using HTTP](https://datatracker.ietf.org/doc/html/draft-ietf-secevent-http-poll)
+# [Poll-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8936)
 
 こちらはポーリングで SET を配送する仕様です。
 recipient が transmitter に POST リクエストをすることでイベントを取得します。
 イベントの取得だけではなく ack の概念があり、POST リクエストで transmitter に受信が完了したイベントを通知できます。transmitter は ack されたイベントを保持する必要がなくなります。
+
+![recipient が transmitter にイベントを取りに行く](https://plantuml-server.kkeisuke.dev/svg/SoWkIImgAStDuU9AB2t9polDJKejuk8AIatEBCXCpIjHqBLJ22bAp2lEpImfIIsoKdZSjEHnyyp7pPiVDtSyRkn_tBZWSUFKnuqjN8d99PbbYIMfoCgvYb9BIeloK3JXCnjaqkB7ZRsF6zSzxP_-PF_2nutJ7pVk0vFp7pSqFLi355b7kHEu75BpKe2U1W00.svg)
 
 イベントをリクエストしつつ ack もするケースで以下のようなリクエスト例が記載されています。
 
@@ -334,3 +437,15 @@ CAEP では以下のイベントが定義されています。
 * クレデンシャルが変わった
 * AAL が変わった
 * デバイスの適格/不適格が変わった
+
+# 参考資料
+* [Shared Signals and Events – A Secure Webhooks Framework](https://openid.net/wg/sse/)
+* [OpenID Shared Signals and Events Framework Specification 1.0 - draft 01](https://openid.net/specs/openid-sse-framework-1_0-ID1.html)
+* [Security Event Token (SET)](https://datatracker.ietf.org/doc/html/rfc8417)
+* [Push-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8935.html)
+* [Poll-Based Security Event Token (SET) Delivery Using HTTP](https://www.rfc-editor.org/rfc/rfc8936.html)
+* [OpenID RISC Profile Specification 1.0 - draft 02](https://openid.net/specs/openid-risc-profile-specification-1_0-02.html)
+* [OpenID Continuous Access Evaluation Profile 1.0 - draft 02](https://openid.net/specs/openid-caep-specification-1_0.html)
+* [New OpenID Foundation draft enables secure and privacy protected webhooks to power an “API-First” world](https://openid.net/2021/08/24/shared-signals-an-open-standard-for-webhooks/)
+* [Guide to Shared Signals](https://sharedsignals.guide/)
+* [Re-thinking federated identity with the Continuous Access Evaluation Protocol](https://cloud.google.com/blog/products/identity-security/re-thinking-federated-identity-with-the-continuous-access-evaluation-protocol)
