@@ -28,8 +28,8 @@ https://ysamm.com/?p=763
 * Facebook のアカウントにはアカウントの悪用などで「チェックポイント」という状態になる
 * この状態になるとユーザーは Google の Captcha が要求されるページに飛ばされることがある
     * このページはクエリパラメーターで Captcha 完了後のページにリダイレクトするページを指定できる
-* このページの Captcha は www.fbsbx.com により配信されていて、www.facebook.com から iframe でロードされる
-    * www.fbsbx.com にはロード元の URL がクエリパラメーターに指定されている
+* このページの Captcha は `www.fbsbx.com` により配信されていて、`www.facebook.co`m から iframe でロードされる
+    * `www.fbsbx.com` にはロード元の URL がクエリパラメーターに指定されている
 
 例えばチェックポイント状態のユーザーが `https://www.facebook.com/eg_oauth_callback_endpoint?code=code` にアクセスした場合、
 
@@ -61,7 +61,10 @@ https://ysamm.com/?p=763
 5. 3 で開いた Window オブジェクト経由で、チェックポイントのページに埋め込まれた iframe の location.href を取得できる（オリジンが同じため）
 6. これによって Google からの認可レスポンスが取得できる
 
-![](https://www.plantuml.com/plantuml/png/bL9FIm915B_FfnZs47LeFu2748AwroSOrrbTqXtPdMsxxip5Go6960GUYZ2p_qHY5FbX7ceVexSx8HeM9RWClD_x_NdlvKF90XbLAuH5KZ17UljCSYfyOe5kWxu2rGKriEZw1hNYEBRTGbWui1rHfP3SJLglawQUjdgWJq6_WHfQ9E0o2dpY2wHXJY32C4StTtUs47y9kfl11jct2VeMr0EeyrH4r-aA1Ps0GfW6TG-w0-e2z1EM9iCw9AE5zkJQj1kCHKWf454DJNf-KSIsg77V8XH_ypdI6Dj2b2gSvkX7_sZSG9b-AgPwe5vGAMin6MQ0cwpKGHbyBELqcSCBGknbWy6yh2QTCaj7D9iC9CCvxkpvvTXp0rRbT7MUPCruNwArP0qplOLDe0yJB4seZrCEVPRLHcP-FyVxvfFxHPB-_tG0_xHeraMdpuVJrYEU2Aq8XqbF-7Ovu2ucQ8uRxV7x2Vbr9tcqXqVy2G00)
+
+![ここまでのシーケンス](/images/facebook-account-takeover-with-gmail1.png)
+
+<!-- ![](https://www.plantuml.com/plantuml/png/bL9FIm915B_FfnZs47LeFu2748AwroSOrrbTqXtPdMsxxip5Go6960GUYZ2p_qHY5FbX7ceVexSx8HeM9RWClD_x_NdlvKF90XbLAuH5KZ17UljCSYfyOe5kWxu2rGKriEZw1hNYEBRTGbWui1rHfP3SJLglawQUjdgWJq6_WHfQ9E0o2dpY2wHXJY32C4StTtUs47y9kfl11jct2VeMr0EeyrH4r-aA1Ps0GfW6TG-w0-e2z1EM9iCw9AE5zkJQj1kCHKWf454DJNf-KSIsg77V8XH_ypdI6Dj2b2gSvkX7_sZSG9b-AgPwe5vGAMin6MQ0cwpKGHbyBELqcSCBGknbWy6yh2QTCaj7D9iC9CCvxkpvvTXp0rRbT7MUPCruNwArP0qplOLDe0yJB4seZrCEVPRLHcP-FyVxvfFxHPB-_tG0_xHeraMdpuVJrYEU2Aq8XqbF-7Ovu2ucQ8uRxV7x2Vbr9tcqXqVy2G00) -->
 
 ### 取得した情報を使って被害者のアカウントでパスワードリカバリ
 
@@ -70,7 +73,9 @@ https://ysamm.com/?p=763
 3. Facebook のパスワードリカバリは Google のアカウント連携で行えるので、選択すると Google に認可リクエストが送られる
 4. この認可レスポンスに含まれる state と、「認可レスポンスの取得まで」で取得した認可コードを組み合わせて Facebook に認可レスポンスとしてアクセスすると、被害者のパスワードリカバリを行える
 
-![](https://www.plantuml.com/plantuml/png/VP5FIiD05CRtFSLSm0kua2v4yHXZ32BM32GJrvtt5595Khke2r4nYrWRQHP1KH0zp4SqtiAP6aLG2bbyl3_VBz-RRgHbgEEzNaV6MabFx-nBxGiLTC1Zy2qe1ps8fHMn9Zr_KwbTiImsLWKu0J-3Id05SmmQrEcuVZc3iTyL-DfrkG1bu07u3lG4SmC-TO9BrtNrAQW03wteXBwEmx_OTQMsUxw5jiAw_5u3ZJxCuzlHfGFtJJCzgTDoNYz1apaiMHJbtmMOcR1tqOusQRAYdbLD_z1Msscgsl-dqVlz0SnhFKn0ASmvJFurqqRc2t1bnNUwG5bJwOKgYYpxnvao5uXoE-pmYm_LzOCj-s2V)
+![ここまでのシーケンス](/images/facebook-account-takeover-with-gmail2.png)
+
+<!-- ![](https://www.plantuml.com/plantuml/png/VP5FIiD05CRtFSLSm0kua2v4yHXZ32BM32GJrvtt5595Khke2r4nYrWRQHP1KH0zp4SqtiAP6aLG2bbyl3_VBz-RRgHbgEEzNaV6MabFx-nBxGiLTC1Zy2qe1ps8fHMn9Zr_KwbTiImsLWKu0J-3Id05SmmQrEcuVZc3iTyL-DfrkG1bu07u3lG4SmC-TO9BrtNrAQW03wteXBwEmx_OTQMsUxw5jiAw_5u3ZJxCuzlHfGFtJJCzgTDoNYz1apaiMHJbtmMOcR1tqOusQRAYdbLD_z1Msscgsl-dqVlz0SnhFKn0ASmvJFurqqRc2t1bnNUwG5bJwOKgYYpxnvao5uXoE-pmYm_LzOCj-s2V) -->
 
 ## 気になったこと
 
