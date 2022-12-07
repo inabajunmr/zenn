@@ -28,7 +28,7 @@ https://ysamm.com/?p=763
 * Facebook のアカウントにはアカウントの悪用などで「チェックポイント」という状態になる
 * この状態になるとユーザーは Google の Captcha が要求されるページに飛ばされることがある
     * このページはクエリパラメーターで Captcha 完了後のページにリダイレクトするページを指定できる
-* このページの Captcha は `www.fbsbx.com` により配信されていて、`www.facebook.co`m から iframe でロードされる
+* このページの Captcha は `www.fbsbx.com` により配信されていて、`www.facebook.com` から iframe でロードされる
     * `www.fbsbx.com` にはロード元の URL がクエリパラメーターに指定されている
 
 例えばチェックポイント状態のユーザーが `https://www.facebook.com/eg_oauth_callback_endpoint?code=code` にアクセスした場合、
