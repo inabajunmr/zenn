@@ -19,7 +19,7 @@ https://github.com/inabajunmr/azidp4j
 こんな雰囲気で動くライブラリを書いています。
 
 ```java
-// This is constructed via http request generally.
+// HTTP リクエストのクエリパラメーターを Map に変換
 var authorizationRequestQueryParameterMap =
         Map.of(
                 "scope", "openid item:read",
@@ -30,13 +30,23 @@ var authorizationRequestQueryParameterMap =
                 "nonce", "xyz");
 var authorizationRequest =
         new AuthorizationRequest(
-                "inabajun", // authenticated user
-                Instant.now().getEpochSecond(), // authenticated time
-                Set.of("openid", "item:read"), // consented scope
+                "inabajun", // アプリケーション側で認証済みのユーザーを指定
+                Instant.now().getEpochSecond(),
+                Set.of("openid", "item:read"), // アプリケーション側で同意済みのスコープを指定
                 authorizationRequestQueryParameterMap);
-var authorizationResponse = azidp.authorize(authorizationRequest);
-System.out.println(authorizationResponse.redirect.redirectTo);
-// https://client.example.com/callback?code=890d9cca-11a2-47b8-b879-1f584fdb0354&state=abc
+var response = azIdP.authorize(authzReq);
+// ライブラリがこの後何をすればよいか返すので、よしなに実装
+switch (response.next) {
+    case redirect -> {
+        // response.redirect.redirectTo にリダイレクト
+    }
+    case errorPage -> {
+        // リダイレクトできないが、エラーになるようなケースでのエラー処理
+    }
+    case additionalPage -> {
+        // ログインや同意など必要な処理が返却されるので、よしなに実装する
+    }
+}
 ```
 
 ## 認可サーバーや IdP がほしい場合
@@ -55,7 +65,7 @@ System.out.println(authorizationResponse.redirect.redirectTo);
 ## ポリシーを決める
 
 ライブラリはインターフェースさえ良ければなんとかなるという感覚があります。
-インターフェースに悩んだときの基準として、大枠で以下のようなライブラリの指針を決めました。
+インターフェースに悩んだときの基準として、大枠で以下のような指針を決めました。
 
 * 特定のフレームワークに依存せず利用できる
 * アクセストークンと ID トークンをなるべく簡単に払い出せる
@@ -149,7 +159,7 @@ https://github.com/inabajunmr/azidp4j/blob/main/docs/endpoint-implementations.md
 
 * スペック全体はカバーしない
     * 例えば Request object をサポートしない、など
-    * 自分が具体的な需要を理解できていない仕様もなるべくサポートしない
+    * 自分が具体的な需要を理解できていない仕様はなるべくサポートしない
 
 今のところ認識している範囲では後から実装してもなんとかなるような気がしていますが、サポート対象の仕様を考えるのはなかなか大変そうです。
 
