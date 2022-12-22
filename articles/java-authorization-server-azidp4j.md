@@ -1,8 +1,8 @@
 ---
-title: "Java で OAuth 2.0 の AZ / OIDC の IdP のためのライブラリを実装しながら考えてたこと"
+title: "Java で OAuth 2.0 の AZ / OIDC の IdP を作るためのライブラリを実装しながら考えてたこと"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["oauth2", "Hydra", "openidconnect"]
+topics: ["oauth2", "openidconnect", "java"]
 published: false
 ---
 
