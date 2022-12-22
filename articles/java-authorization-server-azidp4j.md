@@ -3,7 +3,7 @@ title: "Java で OAuth 2.0 の AZ / OIDC の IdP を作るためのライブラ�
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["oauth2", "openidconnect", "java"]
-published: false
+published: true
 ---
 
 Digital Identity技術勉強会 #iddance Advent Calendar 2022 22 日目の記事です。
@@ -30,9 +30,9 @@ var authorizationRequestQueryParameterMap =
                 "nonce", "xyz");
 var authorizationRequest =
         new AuthorizationRequest(
-                "inabajun", // アプリケーション側で認証済みのユーザーを指定
+                "inabajun", // アプリケーション側で認証済みのユーザーを指定（未認証なら null）
                 Instant.now().getEpochSecond(),
-                Set.of("openid", "item:read"), // アプリケーション側で同意済みのスコープを指定
+                Set.of("openid", "item:read"), // アプリケーション側でユーザーが同意済みのスコープを指定
                 authorizationRequestQueryParameterMap);
 var response = azIdP.authorize(authzReq);
 // ライブラリがこの後何をすればよいか返すので、よしなに実装
@@ -40,11 +40,11 @@ switch (response.next) {
     case redirect -> {
         // response.redirect.redirectTo にリダイレクト
     }
-    case errorPage -> {
-        // リダイレクトできないが、エラーになるようなケースでのエラー処理
-    }
     case additionalPage -> {
         // ログインや同意など必要な処理が返却されるので、よしなに実装する
+    }
+    case errorPage -> {
+        // リダイレクトできないが、エラーになるようなケースでのエラー処理
     }
 }
 ```
@@ -55,12 +55,12 @@ switch (response.next) {
 
 * 全部自前で実装する
 * ライブラリを使って実装する
-* 連携して認可サーバーや IdP として動く製品を利用する
+* アプリケーションと連携して認可サーバーや IdP として動く製品を利用する
 * スタンドアロンで動く製品を利用する
 
-自前実装の場合当然コードをたくさん書かなければならなかったり、仕様を理解したりする必要があります。実装はともかく仕様の理解、特にどの仕様までサポートすればよいのかを追いかけたり、ほしい機能がすでに定義されているのかを探したりするのがなかなか大変です。
+自前実装の場合当然コードをたくさん書かなければならなかったり、仕様を理解したりする必要があります。実装はともかく仕様の理解、特にどの仕様までサポートすればよいのか追いかけたり、ほしい機能がすでに仕様として定義されているのかを判断したりするのがなかなか大変です。
 
-個人的にプロトコルにライブラリに関する処理を丸投げして他はよしなに自分で書きたいと思うことが多かったので、「ライブラリを使って認可サーバーや IdP を実装する」のためのライブラリを実装することにしました。（あと Spring Security OAuth が EOL なので Java にしました）
+個人的にはライブラリにプロトコルに関する処理を丸投げして他はよしなに自分で書きたいと思うことが多かったので、「ライブラリを使って認可サーバーや IdP を実装する」のためのライブラリを実装することにしました。（あと Spring Security OAuth が EOL なので Java にしました）
 
 ## ポリシーを決める
 
@@ -86,10 +86,7 @@ OAuth 2.0 や OpenID Connect はそもそもが Web に依存した仕様であ�
 [Spring ベースで実装するとこんな感じ](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/TokenEndpointHandler.java#L50)になります。
 
 ```java
-@RequestMapping(
-        value = "/token",
-        method = RequestMethod.POST,
-        consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+@PostMapping(value = "token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 public ResponseEntity<Map> tokenEndpoint(@RequestParam MultiValueMap<String, Object> body) {
 
     // クライアント認証など...
@@ -127,11 +124,11 @@ switch (response.next) {
     case redirect -> {
         // response.redirect.redirectTo にリダイレクト
     }
-    case errorPage -> {
-        // リダイレクトできないが、エラーになるようなケースでのエラー処理
-    }
     case additionalPage -> {
         // ログインや同意など必要な処理が返却されるので、よしなに実装する
+    }
+    case errorPage -> {
+        // リダイレクトできないが、エラーになるようなケースでのエラー処理
     }
 }
 ```
