@@ -6,8 +6,6 @@ topics: ["spring security"]
 published: true
 ---
 
-https://docs.spring.io/spring-security/reference/5.7.3/servlet/oauth2/resource-server/opaque-token.html
-
 :::message
 Spring Security 5.7.3 でしか試してないです
 :::
