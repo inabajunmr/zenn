@@ -115,7 +115,30 @@ WebSocket の subprotocol identifier は `fido.cable` となります。この�
 
 ## State-assisted Transactions の流れ
 
+State-assisted Transactions では認証器との接続に以前 QR-initiated Transactions で交換した情報を使うので QR の読み取りを利用しません。
 
+### tunnel service への接続
+
+クライアントプラットフォームは認証器と紐づけてドメインと contact id を持っておき、このエンドポイントへの接続を試みます。
+
+```
+wss://"cable.example.com/cable/contact/${contact id}
+```
+
+一方認証器はどのクライアントプラットフォームと接続するかを知るための link ID とクライアントプラットフォームによる nonce を必要とします。ただしこちらについても認証器側の具体的な手順は仕様外です。
+
+トンネルに接続できたら認証器はハンドシェイクメッセージを送信します。
+
+### 認証器による BLE advert
+
+この後認証器は近接性の検証のため BLE advert を行います。この BLE advert によって取得した nonce とクライアントプラットフォームが link ID と紐づけて保持しているシークレットを利用してハンドシェイク PSK を計算します。
+
+### ハンドシェイク
+
+これによって、クライアントプラットフォームは認証器にハンドシェイクのレスポンスをすることができます。
+ハンドシェイクが完了したらあとは QR-initiated Transactions と同様に CTAP メッセージのやりとりを行ってアテステーションやアサーションの作成を依頼します。
+
+// TODO contact id の取得を update message にからめてかく
 
 ## memo
 
@@ -123,9 +146,6 @@ QR コードの CBOR のエンコード
 https://github.com/chromium/chromium/blob/2edb2e5b6179366c0f2153597e9b1a6e4cae1491/device/fido/cable/v2_handshake.cc#L441
 
 https://github.com/chromium/chromium/blob/aaf3c8ca9f31375ac344e46947e02c443ef38a24/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/BLEAdvert.java#L70
-
-![Alt text](image.png)
-
 
 QR コードのパース
 https://github.com/chromium/chromium/commit/9730b37c518f817df3bab4064fa4e35591d08220
