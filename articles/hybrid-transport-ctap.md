@@ -16,7 +16,7 @@ published: true
 
 ### QR-initiated Transactions
 
-![](/images/qr-initiated.png)
+![QR-initiated Transactions の図 流れは後述](/images/qr-initiated.png)
 
 * 接続したことがないクライアントプラットフォームと認証器の間で QR コードを介して接続するフロー
 * クライアントプラットフォームに QR コードを表示し、それを認証器側のデバイスでスキャンする
@@ -25,7 +25,7 @@ published: true
 
 ### State-assisted Transactions
 
-![](/images/state-assisted.png)
+![State-assisted Transactions の図 流れは後述](/images/state-assisted.png)
 
 * QR-initiated Transactions で接続した際に交換した接続情報を使って QR コードを使わずにやり取りするフロー
 * QR-initiated Transactions を一度行ったクライアントプラットフォームと認証器の間で再度やりとりをする際に利用する
@@ -202,13 +202,12 @@ PSK および linking information に含まれる公開鍵を使ってハンド�
 
 #### Tunnel Service への接続まで
 
-![](https://cdn-0.plantuml.com/plantuml/png/LO-_JiGm38VtF8LrEsI_0Lses1WATo_WImr4IfmgSGwa4mkTU1vMtgOlWccdJZ_xqoV_ELJ18Yr5Cse67qPaWLqN0sds4UKbbxG3hD3rMySrUIFM7YMNnN1RuTIOASAHoYLuMepJqM2Jp2sTgHZJzN1p1mxsyFGCyzVFFFtEqxTnIdMTull71y3XGaLMLmSeVQzrRwt7SwHR-i0qQlgSLc9zPYOlzbfoay2l48PFUvNr6AsDEH0F_o__0G00)
+![QR-initiated Transactions のシーケンス1](/images/hybrid1.png)
+<!-- ![](https://cdn-0.plantuml.com/plantuml/png/LO-_JiGm38VtF8LrEsI_0Lses1WATo_WImr4IfmgSGwa4mkTU1vMtgOlWccdJZ_xqoV_ELJ18Yr5Cse67qPaWLqN0sds4UKbbxG3hD3rMySrUIFM7YMNnN1RuTIOASAHoYLuMepJqM2Jp2sTgHZJzN1p1mxsyFGCyzVFFFtEqxTnIdMTull71y3XGaLMLmSeVQzrRwt7SwHR-i0qQlgSLc9zPYOlzbfoay2l48PFUvNr6AsDEH0F_o__0G00) -->
 
 ##### 1. QR コード
 
-:::message
-Client Platform -> Authenticator
-:::
+**Client Platform -> Authenticator**
 
 | value | 出どころ |
 | ---- | - |
@@ -218,9 +217,7 @@ Client Platform -> Authenticator
 
 ##### 2. BLE advert
 
-:::message
-Client Platform <- Authenticator
-:::
+**Client Platform <- Authenticator**
 
 BLE advert の復号は QR secret から導出した値を使って行う。
 
@@ -231,9 +228,7 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 
 ##### 3. wss://cable.example.com/cable/connect/{routing id}/{tunnel id}
 
-:::message
-Client Platform -> Tunnel Service
-:::
+**Client Platform -> Tunnel Service**
 
 | value | 出どころ |
 | ----- | - |
@@ -243,13 +238,13 @@ Client Platform -> Tunnel Service
 
 #### Tunnel Service への接続後
 
-![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BplKtpqh2_GWpJaehU0VO6rsJR1P5EIJNl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgqaYiSg3GFMDDkl-Kqk5PJim1TcEm5NzIWEIy0Ji9tV6YjLdf06SnN5NmgByLH5CWstHCnaf0H4BH63jMAyPPXERZxw1uGZqZkaE--79sOItaCrbL84i2dYbbyJGBetdNG9-wIxZDaEhAw11MLOvz9DFBuj81H9mXk2MJbbE_znqFQL1msXDcGz0iBHV7mqEpzRigHDbwj2_pSkuN6U5Pz9cyCGxAhb5AyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvedNghSg2sBi8nLX7JDhtq2)
+![QR-initiated Transactions のシーケンス2](hybrid2.png)
+
+<!-- ![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BplKtpqh2_GWpJaehU0VO6rsJR1P5EIJNl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgqaYiSg3GFMDDkl-Kqk5PJim1TcEm5NzIWEIy0Ji9tV6YjLdf06SnN5NmgByLH5CWstHCnaf0H4BH63jMAyPPXERZxw1uGZqZkaE--79sOItaCrbL84i2dYbbyJGBetdNG9-wIxZDaEhAw11MLOvz9DFBuj81H9mXk2MJbbE_znqFQL1msXDcGz0iBHV7mqEpzRigHDbwj2_pSkuN6U5Pz9cyCGxAhb5AyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvedNghSg2sBi8nLX7JDhtq2) -->
 
 ##### 1. Handshake message
 
-:::message
-Client Platform -> (Tunnel Service) -> Authenticator
-:::
+**Client Platform -> (Tunnel Service) -> Authenticator**
 
 | value | 出どころ |
 | ----- | --- |
@@ -258,9 +253,7 @@ Client Platform -> (Tunnel Service) -> Authenticator
 
 ##### 2. Handshake message with getInfo の結果
 
-:::message
-Client Platform <- (Tunnel Service) <- Authenticator
-:::
+**Client Platform <- (Tunnel Service) <- Authenticator**
 
 | value | 出どころ |
 | ----- | --- |
@@ -271,9 +264,7 @@ Client Platform <- (Tunnel Service) <- Authenticator
 
 ##### 3. update message
 
-:::message
-Client Platform <- (Tunnel Service) <- Authenticator
-:::
+**Client Platform <- (Tunnel Service) <- Authenticator**
 
 このメッセージは仕様上タイミングが定義されていないので CTAP message のあとかも
 
@@ -287,9 +278,7 @@ Client Platform <- (Tunnel Service) <- Authenticator
 
 ##### 4. shutdown message
 
-:::message
-Client Platform -> (Tunnel Service) -> Authenticator
-:::
+**Client Platform -> (Tunnel Service) -> Authenticator**
 
 これを受けて認証器は接続を切る。（切らなくてもいい）
 
@@ -297,9 +286,13 @@ Client Platform -> (Tunnel Service) -> Authenticator
 
 #### Tunnel Service への接続まで
 
-![](https://cdn-0.plantuml.com/plantuml/png/LO-zQiGm381tFOK8NLll6KfIqws38Na1nL6fmJ_1bjE3uzxzVBbRCdtInwT1Gn7AKeE7hT5Pjr4KxBHtt6WyoM_AeKCggCsv6QlySMmxISf7CPw3kSR87YVEkxDy5FC4G5LIh67X3A0DldysYpt-bz8hPMdn_C4N2bkZJU5fb4rHo8fwkxucTEiDniUrDZr-_NmZhJjd0HWuhksXEm00)
+![State-assisted Transactions のシーケンス1](hybrid3.png)
+
+<!-- ![](https://cdn-0.plantuml.com/plantuml/png/LO-zQiGm381tFOK8NLll6KfIqws38Na1nL6fmJ_1bjE3uzxzVBbRCdtInwT1Gn7AKeE7hT5Pjr4KxBHtt6WyoM_AeKCggCsv6QlySMmxISf7CPw3kSR87YVEkxDy5FC4G5LIh67X3A0DldysYpt-bz8hPMdn_C4N2bkZJU5fb4rHo8fwkxucTEiDniUrDZr-_NmZhJjd0HWuhksXEm00) -->
 
 ##### 1. wss://cable.example.com/cable/contact/${contact id}
+
+**Client Platform -> Tunnel Service**
 
 | value | でどころ |
 | --- | ---- |
@@ -309,6 +302,8 @@ Client Platform -> (Tunnel Service) -> Authenticator
 
 ##### 2. BLE advert
 
+**Authenticator Client Platform**
+
 BLE advert の復号は link secret と 1 で送信した nonce から導出した鍵によって行う。
 
 | value | でどころ |
@@ -317,9 +312,13 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 
 #### Tunnel Service への接続後
 
-![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BpdAJvwrXVeGHfoqLl0li3QR9jWiYd9Rdl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgsaaYLIHQ7LD3ke1Kqc99ISCE1cko6JzJY9Ii1ISDpV6bj9dmk3cOoJBuLjCILZeQ8jdbWYbXpY5a_0NZ7UCamdDn_z0y8HwHtIdVV34pC9xw6gXE0XRFAa5TGuaEvD9rt2FkckPJakhAw13MLOPy9BVRRD8U9foXhSidFASV_Ze1r87nfSReXw38IZ-VXeTdwsP55DZyb2_pSkuN6U5Pz9cyCGdAhj5gyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvgdlf9Ut1P5s0eNdlcpJm00)
+![State-assisted Transactions のシーケンス4](hybrid4.png)
+
+<!-- ![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BpdAJvwrXVeGHfoqLl0li3QR9jWiYd9Rdl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgsaaYLIHQ7LD3ke1Kqc99ISCE1cko6JzJY9Ii1ISDpV6bj9dmk3cOoJBuLjCILZeQ8jdbWYbXpY5a_0NZ7UCamdDn_z0y8HwHtIdVV34pC9xw6gXE0XRFAa5TGuaEvD9rt2FkckPJakhAw13MLOPy9BVRRD8U9foXhSidFASV_Ze1r87nfSReXw38IZ-VXeTdwsP55DZyb2_pSkuN6U5Pz9cyCGdAhj5gyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvgdlf9Ut1P5s0eNdlcpJm00) -->
 
 ##### 1. Handshake message
+
+**Client Platform -> Authenticator**
 
 | value | でどころ |
 | ----- | --- |
@@ -327,6 +326,8 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 | ephemeral key | ランダム生成 |
 
 ##### 2. Handshake message with getInfo の結果
+
+**Client Platform -> Authenticator**
 
 | value | 出どころ |
 | ----- | --- |
