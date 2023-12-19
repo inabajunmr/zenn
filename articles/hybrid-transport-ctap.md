@@ -238,7 +238,7 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 
 #### Tunnel Service への接続後
 
-![QR-initiated Transactions のシーケンス2](hybrid2.png)
+![QR-initiated Transactions のシーケンス2](/images/hybrid2.png)
 
 <!-- ![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BplKtpqh2_GWpJaehU0VO6rsJR1P5EIJNl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgqaYiSg3GFMDDkl-Kqk5PJim1TcEm5NzIWEIy0Ji9tV6YjLdf06SnN5NmgByLH5CWstHCnaf0H4BH63jMAyPPXERZxw1uGZqZkaE--79sOItaCrbL84i2dYbbyJGBetdNG9-wIxZDaEhAw11MLOvz9DFBuj81H9mXk2MJbbE_znqFQL1msXDcGz0iBHV7mqEpzRigHDbwj2_pSkuN6U5Pz9cyCGxAhb5AyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvedNghSg2sBi8nLX7JDhtq2) -->
 
@@ -286,7 +286,7 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 
 #### Tunnel Service への接続まで
 
-![State-assisted Transactions のシーケンス1](hybrid3.png)
+![State-assisted Transactions のシーケンス1](/images/hybrid3.png)
 
 <!-- ![](https://cdn-0.plantuml.com/plantuml/png/LO-zQiGm381tFOK8NLll6KfIqws38Na1nL6fmJ_1bjE3uzxzVBbRCdtInwT1Gn7AKeE7hT5Pjr4KxBHtt6WyoM_AeKCggCsv6QlySMmxISf7CPw3kSR87YVEkxDy5FC4G5LIh67X3A0DldysYpt-bz8hPMdn_C4N2bkZJU5fb4rHo8fwkxucTEiDniUrDZr-_NmZhJjd0HWuhksXEm00) -->
 
@@ -312,7 +312,7 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 
 #### Tunnel Service への接続後
 
-![State-assisted Transactions のシーケンス4](hybrid4.png)
+![State-assisted Transactions のシーケンス4](/images/hybrid4.png)
 
 <!-- ![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BpdAJvwrXVeGHfoqLl0li3QR9jWiYd9Rdl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgsaaYLIHQ7LD3ke1Kqc99ISCE1cko6JzJY9Ii1ISDpV6bj9dmk3cOoJBuLjCILZeQ8jdbWYbXpY5a_0NZ7UCamdDn_z0y8HwHtIdVV34pC9xw6gXE0XRFAa5TGuaEvD9rt2FkckPJakhAw13MLOPy9BVRRD8U9foXhSidFASV_Ze1r87nfSReXw38IZ-VXeTdwsP55DZyb2_pSkuN6U5Pz9cyCGdAhj5gyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvgdlf9Ut1P5s0eNdlcpJm00) -->
 
