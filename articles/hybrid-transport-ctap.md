@@ -3,7 +3,7 @@ title: "CTAP2.2 の Hybrid transports"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["authentication", "ctap"]
-published: false
+published: true
 ---
 
 [Digital Identity技術勉強会 #iddance Advent Calendar 2023](https://qiita.com/advent-calendar/2023/iddance) 21 日目の記事です。
@@ -158,7 +158,7 @@ State-assisted Transactions では認証器との接続に以前 QR-initiated Tr
 
 ### tunnel service への接続
 
-クライアントプラットフォームは認証器と紐づけてドメインと contact id を持っておき、このエンドポイントへの接続を試みます。
+クライアントプラットフォームは認証器と紐づけてドメインと contact id を持っておき、このエンドポイント経由での認証器への接続を試みます。
 
 ```
 wss://cable.example.com/cable/contact/${contact id}
@@ -341,16 +341,3 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 * [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid)
 * [The Noise Protocol Framework](http://www.noiseprotocol.org/noise.html)
 * [携帯電話のPasskeyはもう使えるメモ](https://zenn.dev/okuoku/scraps/35d81e1337262f)
-
-## memo
-
-QR コードの CBOR のエンコード
-https://github.com/chromium/chromium/blob/2edb2e5b6179366c0f2153597e9b1a6e4cae1491/device/fido/cable/v2_handshake.cc#L441
-
-https://github.com/chromium/chromium/blob/aaf3c8ca9f31375ac344e46947e02c443ef38a24/chrome/android/features/cablev2_authenticator/java/src/org/chromium/chrome/browser/webauth/authenticator/BLEAdvert.java#L70
-
-QR コードのパース
-https://github.com/chromium/chromium/commit/9730b37c518f817df3bab4064fa4e35591d08220
-
-QR コードを読み取る側
-https://github.com/chromium/chromium/blob/main/chrome/android/features/cablev2_authenticator/native/cablev2_authenticator_android.cc#L583
