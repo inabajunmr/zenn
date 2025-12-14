@@ -1,31 +1,59 @@
 ---
-title: "CTAP2.2 の Hybrid transports"
+title: "CTAP 2.3 Review Draft の Hybrid Transports"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["authentication", "ctap"]
-published: true
+published: false
 ---
 
-[Digital Identity 技術勉強会 #iddance Advent Calendar 2023](https://qiita.com/advent-calendar/2023/iddance) 21 日目の記事です。
+[Digital Identity 技術勉強会 #iddance Advent Calendar 2025](https://qiita.com/advent-calendar/2025/iddance) 23 日目の記事です。
 
-[Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023 の 11.5. Hybrid transports](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid) に書いてある内容を整理しました。
+先日の[FIDO 東京セミナー](https://fidoalliance.org/event/fido-tokyo-seminar/?lang=ja)で Hybrid Transport の内容が結構変わっているとを教えてもらったので改めて整理してみます。
+
+以下の内容は [Client to Authenticator Protocol (CTAP)
+Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)を参考にしています。
+
+## 差分メモ
+
+これは記事にはしないかも
+
+- Authenticator だけではなく CMHD が定義された
+  - ウォレットも
+- network communication が tunnel service だけじゃなくて BLE, UWB が定義された
+- QR コードのヒントにウォレット系のものが増えた
+
+## よくわからん
+
+- advertisement suffix の構造
+
+## TODO
+
+- シーケンスに BLE のパターンを追加
 
 ## ざっくり
 
 この仕様は PC などのクライアントプラットフォームに対してスマートフォンなどの別のデバイスを認証器として使うときの仕様で、それぞれ [QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-qr-initiated) と [State-assisted Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-state-assisted) に分かれています。
 
+## [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://zenn.dev/inabajunmr/articles/hybrid-transport-ctap) との変更点
+
+- Digital Credential API を前提とした記載が追加された
+  - CTAP メッセージだけではなく Hybrid Transport のチャネルで Digital Credential のメッセージもやり取りできる
+- メッセージ自体をやり取りする経路として、BLE での接続が追加された
+  - Tunnel Service で WebSocket を使って、をせずに BLE だけで全部のやり取りをしてしまうパターン
+
 ### QR-initiated Transactions
 
-![QR-initiated Transactions の図 流れは後述](/images/qr-initiated.png)
+![QR-initiated Transactions の図 流れは後述](/images/hybrid23-1.jpg)
 
 - 接続したことがないクライアントプラットフォームと認証器の間で QR コードを介して接続するフロー
 - クライアントプラットフォームに QR コードを表示し、それを認証器側のデバイスでスキャンする
-- スマートフォンは BLE アドバタイズを行い、ここまでにやり取りした情報を使って双方のデバイスが tunnel service 経由で WebSocket によってやりとりできるようになる
+- スマートフォンは BLE アドバタイズを行い、ここまでにやり取りした情報を使って双方のデバイスがメッセージのやりとりできるようになる
+  - このときの接続は BLE でクライアントプラットフォームとスマートフォンが直接接続するか、tunnel service 経由で WebSocket によって接続する
 - この接続を通じて CTAP メッセージのやりとりをすることで、クライアントプラットフォームは認証器にクレデンシャルの作成を命令したり、認証器は作成したアテステーションをクライアントプラットフォームに送信したりすることができる
 
 ### State-assisted Transactions
 
-![State-assisted Transactions の図 流れは後述](/images/state-assisted.png)
+![State-assisted Transactions の図 流れは後述](/images/hybrid23-2.jpg)
 
 - QR-initiated Transactions で接続した際に交換した接続情報を使って QR コードを使わずにやり取りするフロー
 - QR-initiated Transactions を一度行ったクライアントプラットフォームと認証器の間で再度やりとりをする際に利用する
@@ -54,11 +82,16 @@ published: true
 | 2   | クライアントプラットフォームが知ってる tunnel service のドメインの数 ※1 | これが 2 だったらこのプラットフォームは `cable.ua5v.com` と `cable.auth.com` を知っていることになり、後述の BLE advert で 0 を指定すれば前者に、1 を指定すれば後者を利用することが表現できる |
 | 3   | 現在時刻                                                                |
 | 4   | プラットフォームが state-assisted transactions に対応しているかどうか   |
-| 5   | 今後行われる操作についてのヒント（認証 or 登録）                        |
+| 5   | 今後行われる操作についてのヒント                                        |
+| 6   | トランスポートに使われるチャネル（WebSocket / BLE）のリスト             |
 
-- ※1 なぜこういうフォーマットなのかよくわからない
-- ※1 `cable.ua5v.com` だけ知ってる、はできるのに `cable.auth.com` しか知らないプラットフォームを作れないように見えるのがなんか変な気がする
-- ※1 wellknown なものは各プラットフォームが全部サポートするのが前提なんだろうか
+ヒントには以下のものがあります。
+| key | value | desc |
+| --- | --- |
+| ga | getAssertion (FIDO2) |
+| mc | makeCredential (FIDO2) |
+| dcp | credential presentation (Digital Credentials API) |
+| dci | credential issuance (Digital Credentials API) |
 
 ### 認証器による QR コードの読み取りと BLE advert
 
@@ -77,7 +110,14 @@ BLE advert には以下のフィールドがあります。
 
 この値によって利用する tunnel service が決定されます。
 
-### tunnel service の決定
+### データ送信チャネルの決定
+
+QR コードにはトランスポートに利用できるチャネルの情報が含まれており、認証器は自身がサポートしているチャネルと QR コードで通知されたチャネルで共通のものの中から適切なものを選択します。
+[11.5.1.1. Data transfer channel](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html#hybrid-data-transfer-channel) には WebSocket(Tunnel Service) はフォールバックもしくは後方互換性のためにサポートすべきである、という記述があるため、今後は BLE が主流になっていくのかもしれません。
+
+### WebSocket による接続
+
+#### tunnel service の決定
 
 tunnel service identifier によって利用する tunnel service が決定されます。
 この値が 256 未満の場合、well known な tunnel service を利用することを意味します。
@@ -86,7 +126,7 @@ tunnel service identifier によって利用する tunnel service が決定さ�
 256 以上の場合、この値をあるルール（導出のための Go のコードが仕様に記載されています）でハッシュ化した値がドメインとして利用されます。
 例えば 256 であれば `cable.qz2ekwmnd332c.info`、257 であれば `cable.4a6bwmj6hiyyd.net` のようになります。任意の tunnel service を利用する認証器を実装する場合、適当な数字で空いているドメインを取得してホストすればよいのではないでしょうか。
 
-### tunnel service への接続
+#### tunnel service への接続
 
 クライアントプラットフォームが tunnel service へ接続する準備ができたので、接続します。
 まず tunnel ID を導出します。これは tunnel service のコネクションを一意に特定する ID のようなものです。この値も QR secret から導出されます。
@@ -100,6 +140,16 @@ wss://cable.example.com/cable/connect/{routing id}/{tunnel id}
 WebSocket の subprotocol identifier は `fido.cable` となります。このとき、認証器側も tunnel service に接続しに行きますがこちらの接続については具体的な記述がありません。認証器と tunnel service の提供元が同じなので独自の仕組みで認証したりするんでしょうか。
 
 この時点でトンネルが確立し、クライアントプラットフォームと認証器は WebSocket フレーム でのやり取りができるようになります。
+
+### BLE による接続
+
+QR コード経由で BLE がトランスポートに利用可能なことが通知された場合、認証器は insecure L2CAP Connection-oriented Channel (CoC) Bluetooth server socket を作ります。
+ここでこのチャンネルの識別子である server PSM を生成し、advertisement suffix に追加して Client Platform に L2CAP の接続ができることを通知します。
+client platform が BLE advert から server PSM をパースして利用することでソケットに接続し、以降このチャネル上でメッセージのやり取りを行うことができます。
+
+この BLE の接続は optional であり、フォールバックのために WebSocket での通信もサポートすべきとのことです。
+
+> Bluetooth Low Energy L2CAP and extended advertising are optional features and may not be available on all devices. Implementations SHOULD always include websockets as a fallback.
 
 ### ハンドシェイク
 
@@ -125,15 +175,16 @@ WebSocket の subprotocol identifier は `fido.cable` となります。この�
 PSK で認証しながら「e 同士」「クライアントプラットフォームの公開鍵と e」 でそれぞれ鍵交換を行い、これらの鍵から通信に利用する鍵を導出します。
 以降のメッセージはハンドシェイクで導出した鍵によって暗号化されます。
 
-認証器側からの最初のメッセージは `post handshake` で、これには [getInfo](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#authenticatorGetInfo) のレスポンス、つまり認証器の情報（aaguid とか対応してるアルゴリズムとかトランスポートとか）が含まれています。
+認証器側からの最初のメッセージは `post handshake` で、これには [getInfo](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#authenticatorGetInfo) のレスポンス、つまり認証器の情報（aaguid とか対応してるアルゴリズムとかトランスポートとか）と、認証器がサポートしている機能（ctap / dc）が含まれています。dc は Digital Credential のサポートを表します。
 
 これ以降のメッセージにはメッセージの type が含まれるようになり、CTAP のコマンドは CTAP message type のメッセージによって送信されます。
 
-| key | type     | desc                                                                                                 |
-| --- | -------- | ---------------------------------------------------------------------------------------------------- |
-| 0   | shutdown | クライアントから認証器にのみ送られる <br> クライアントがこれ以上 CTAP メッセージを送らないことを表す |
-| 1   | CTAP     | CTAP2 payload                                                                                        |
-| 2   | update   | 双方から送られるが、現状認証器からクライアントプラットフォームに向けての値のみ定義されている         |
+| key | type               | desc                                                                                                 |
+| --- | ------------------ | ---------------------------------------------------------------------------------------------------- |
+| 0   | shutdown           | クライアントから認証器にのみ送られる <br> クライアントがこれ以上 CTAP メッセージを送らないことを表す |
+| 1   | CTAP               | CTAP2 payload                                                                                        |
+| 2   | update             | 双方から送られるが、現状認証器からクライアントプラットフォームに向けての値のみ定義されている         |
+| 3   | JSON-based message | Digital Credential                                                                                   |
 
 クライアントプラットフォームは CTAP2 コマンドを認証器に送って何らかのアクションを送ります。getInfo はすでに受信しているので例えば登録の場合 [authenticatorMakeCredential](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#authenticatorMakeCredential) を送ると認証器がクレデンシャルを作成してアテステーションをレスポンスしてくるのでそれを使ってよしなに登録処理を進めるといった感じになります。
 
@@ -155,6 +206,7 @@ update メッセージには CBOR で linking information が含まれていて�
 ## State-assisted Transactions の流れ
 
 State-assisted Transactions では認証器との接続に以前 QR-initiated Transactions で交換した情報を使うので QR の読み取りを利用しません。
+仕様を見たところ WebSocket を前提としたやり取りしか記載されていなかったので、BLE の場合毎回 QR コードのスキャンが必要になるのかもしれませんが Draft なのでまだよくわかりません。
 
 ### tunnel service への接続
 
@@ -341,3 +393,5 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 - [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid)
 - [The Noise Protocol Framework](http://www.noiseprotocol.org/noise.html)
 - [携帯電話の Passkey はもう使えるメモ](https://zenn.dev/okuoku/scraps/35d81e1337262f)
+- [Client to Authenticator Protocol (CTAP)
+  Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)
