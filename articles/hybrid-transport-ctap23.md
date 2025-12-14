@@ -13,22 +13,9 @@ published: false
 以下の内容は [Client to Authenticator Protocol (CTAP)
 Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)を参考にしています。
 
-## 差分メモ
-
-これは記事にはしないかも
-
-- Authenticator だけではなく CMHD が定義された
-  - ウォレットも
-- network communication が tunnel service だけじゃなくて BLE, UWB が定義された
-- QR コードのヒントにウォレット系のものが増えた
-
 ## よくわからん
 
 - advertisement suffix の構造
-
-## TODO
-
-- シーケンスに BLE のパターンを追加
 
 ## ざっくり
 
@@ -39,7 +26,8 @@ Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-2025
 - Digital Credential API を前提とした記載が追加された
   - CTAP メッセージだけではなく Hybrid Transport のチャネルで Digital Credential のメッセージもやり取りできる
 - メッセージ自体をやり取りする経路として、BLE での接続が追加された
-  - Tunnel Service で WebSocket を使って、をせずに BLE だけで全部のやり取りをしてしまうパターン
+  - Tunnel Service で WebSocket を使って、をせずに BLE だけで全部のやり取りをしてしまうパターンができた
+  - 通信経路として 'tunnel service, or use local communication (e.g. Bluetooth Low Energy (BLE), Ultra-wideband (UWB), etc.' とあるので今後なにか増えるのかもしれないが現時点で仕様としては Tunnel Service と BLE のみ記載されている
 
 ### QR-initiated Transactions
 
@@ -82,11 +70,11 @@ Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-2025
 | 2   | クライアントプラットフォームが知ってる tunnel service のドメインの数 ※1 | これが 2 だったらこのプラットフォームは `cable.ua5v.com` と `cable.auth.com` を知っていることになり、後述の BLE advert で 0 を指定すれば前者に、1 を指定すれば後者を利用することが表現できる |
 | 3   | 現在時刻                                                                |
 | 4   | プラットフォームが state-assisted transactions に対応しているかどうか   |
-| 5   | 今後行われる操作についてのヒント                                        |
-| 6   | トランスポートに使われるチャネル（WebSocket / BLE）のリスト             |
+| 5   | 今後行われる操作についてのヒント                                        |                                                                                                                                                                                              |
+| 6   | トランスポートに使われるチャネル                                        | WebSocket or Bluetooth Low Energy                                                                                                                                                            |
 
 ヒントには以下のものがあります。
-| key | value | desc |
+| key | value |
 | --- | --- |
 | ga | getAssertion (FIDO2) |
 | mc | makeCredential (FIDO2) |
@@ -107,8 +95,9 @@ BLE advert には以下のフィールドがあります。
 | nonce                     |                                            |
 | routing ID                | tunnel service に接続する際にわたす        |
 | tunnel service identifier | 利用する tunnel service を決定するための値 |
+| server PSM                | BLE 接続の場合のソケットの識別子           |
 
-この値によって利用する tunnel service が決定されます。
+この値によって通信経路の接続に必要な情報が交換されます。
 
 ### データ送信チャネルの決定
 
@@ -206,7 +195,9 @@ update メッセージには CBOR で linking information が含まれていて�
 ## State-assisted Transactions の流れ
 
 State-assisted Transactions では認証器との接続に以前 QR-initiated Transactions で交換した情報を使うので QR の読み取りを利用しません。
+
 仕様を見たところ WebSocket を前提としたやり取りしか記載されていなかったので、BLE の場合毎回 QR コードのスキャンが必要になるのかもしれませんが Draft なのでまだよくわかりません。
+この場合 BLE advert をするきっかけがないので Authenticator が常時 advert し続ける必要な気がしますがそれが難しいとかそういう話なのでしょうか。（BLE のことがわかっていないので滅茶苦茶なことを言っているかもしれません）
 
 ### tunnel service への接続
 
@@ -251,11 +242,11 @@ PSK および linking information に含まれる公開鍵を使ってハンド�
 
 ### QR-initiated Transactions
 
-#### Tunnel Service への接続まで
+#### メッセージの通信経路の確立まで
 
-![QR-initiated Transactions のシーケンス1](/images/hybrid1.png)
+![QR-initiated Transactions のシーケンス1](/images/hybrid23-sequence1.png)
 
-<!-- ![](https://cdn-0.plantuml.com/plantuml/png/LO-_JiGm38VtF8LrEsI_0Lses1WATo_WImr4IfmgSGwa4mkTU1vMtgOlWccdJZ_xqoV_ELJ18Yr5Cse67qPaWLqN0sds4UKbbxG3hD3rMySrUIFM7YMNnN1RuTIOASAHoYLuMepJqM2Jp2sTgHZJzN1p1mxsyFGCyzVFFFtEqxTnIdMTull71y3XGaLMLmSeVQzrRwt7SwHR-i0qQlgSLc9zPYOlzbfoay2l48PFUvNr6AsDEH0F_o__0G00) -->
+<!-- ![](//www.plantuml.com/plantuml/png/LP2nJiCm48RtUufJT_3U0JL4R20578dvwXnWuTYHVGv85GkTU1vMtYOlmj4Cg8j_s_f-tQVR5Q4iTGmmQNhd9ug2cpPurkm2oLFAumQfODkTCqsL5uxw9advH3JdG5zZv82My-mTduZU0bL9vCJF98mf0hGTNbnXWrkyVy3bytiv_Yp7ByWiDSSjNj_U80qpPm4AWe-yjycziW3YskojLjzAsHhZQ1_uajzfd3HT6jSVuvAQE367dAhu-8n--307MVtq3XmA_qq2n7-TekASiRDtm760dHwwg5y0) -->
 
 ##### 1. QR コード
 
@@ -266,6 +257,7 @@ PSK および linking information に含まれる公開鍵を使ってハンド�
 | クライアントプラットフォームの公開鍵                                 | クライアントプラットフォームが保持 |
 | QR secret                                                            | クライアントプラットフォームが生成 |
 | クライアントプラットフォームが知ってる tunnel service のドメインの数 | クライアントプラットフォームが保持 |
+| クライアントプラットフォームがサポートしているメッセージの通信経路   | クライアントプラットフォームが保持 |
 
 ##### 2. BLE advert
 
@@ -277,8 +269,9 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 | ------------------------- | ------------ |
 | routing ID                | 認証器が決定 |
 | tunnel service identifier | 認証器が保持 |
+| server PSM                | 認証器が生成 |
 
-##### 3. wss://cable.example.com/cable/connect/{routing id}/{tunnel id}
+##### 3-A. Tunnel Service への接続(WebSocket の場合)
 
 **Client Platform -> Tunnel Service**
 
@@ -288,24 +281,32 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 | routing ID   | BLE advert で受け取った値                                                                                                          |
 | tunnel id    | QR secret から導出                                                                                                                 |
 
-#### Tunnel Service への接続後
+##### 3-B. L2CAP CoC の確立(BLE の場合)
 
-![QR-initiated Transactions のシーケンス2](/images/hybrid2.png)
+**Client Platform -> Authenticator**
 
-<!-- ![](https://cdn-0.plantuml.com/plantuml/png/RL7DIiD06BplKtpqh2_GWpJaehU0VO6rsJR1P5EIJNl-DYBIAae5fI2AYgqWL4IAF_LjljhMjt0Z4Yjw-RwTdPbbXgqaYiSg3GFMDDkl-Kqk5PJim1TcEm5NzIWEIy0Ji9tV6YjLdf06SnN5NmgByLH5CWstHCnaf0H4BH63jMAyPPXERZxw1uGZqZkaE--79sOItaCrbL84i2dYbbyJGBetdNG9-wIxZDaEhAw11MLOvz9DFBuj81H9mXk2MJbbE_znqFQL1msXDcGz0iBHV7mqEpzRigHDbwj2_pSkuN6U5Pz9cyCGxAhb5AyJtf7U8xmc792-8Zscx8tq4sL3oXu9Rmcx-NssI_ebdykixYq6E7lGXAU45wGxy_xhudA_WD_LVvedNghSg2sBi8nLX7JDhtq2) -->
+| value      | 出どころ                           |
+| ---------- | ---------------------------------- |
+| server PSM | BLE advert で受け取った server PSM |
+
+#### WebSocket / L2CAP CoC の確立後
+
+![QR-initiated Transactions のシーケンス2](/images/hybrid23-sequence2.png)
+
+<!-- ![](//www.plantuml.com/plantuml/png/RL5DIyD04BtdLmmzwyLZ3jAGYuA7WFq3IxDjWkbkIJRjrTs8Y5Kg5PI2A2gsWg285AlrtqnjwxzmuaUXwENDphwtZtcpnKInMAMroAfJ3SjXdGa51JSAELKlOgeYure1M0AkjwXnKXLmGJrJClvIE1PBbMHb5JQOuY259MHU6pm6PuaCR1YFRZwwXwZlqUoWsNzldn2YVe1IAWIFO9F7ZR3C0T1qngCMwYuQmXPkwuqLr_70bIwCX_IaFxiyGDD6GzYoBDU3vLLmm8Or9lmaO5iSQZn9M9LRCLTfBFwZe1cg0AfShOkA11fhEZYQd9zPJcv6bZQaTP-fkVvl8DJ7UHezH4E7FhWbn_jL4tc7PW_rDUeUcYiq0ypUq3nZriVi2VKj9SllirqqBuGBhEdCUdhoQ52VehwWDKsxhvHvtdxlvYUS3KcGAbysnNpK8XS-VUmd) -->
 
 ##### 1. Handshake message
 
 **Client Platform -> (Tunnel Service) -> Authenticator**
 
-| value         | 出どころ                          |
-| ------------- | --------------------------------- |
-| PSK           | QR secret と復号した BLE から導出 |
-| ephemeral key | ランダム生成                      |
+| value         | 出どころ                                 |
+| ------------- | ---------------------------------------- |
+| PSK           | QR secret と復号した BLE advert から導出 |
+| ephemeral key | ランダム生成                             |
 
 ##### 2. Handshake message with getInfo の結果
 
-**Client Platform <- (Tunnel Service) <- Authenticator**
+**Client Platform <- (Tunnel Service or L2CAP CoC) <- Authenticator**
 
 | value          | 出どころ     |
 | -------------- | ------------ |
@@ -316,7 +317,7 @@ BLE advert の復号は QR secret から導出した値を使って行う。
 
 ##### 3. update message
 
-**Client Platform <- (Tunnel Service) <- Authenticator**
+**Client Platform <- (Tunnel Service or L2CAP CoC) <- Authenticator**
 
 このメッセージは仕様上タイミングが定義されていないので CTAP message のあとかも
 
@@ -391,7 +392,6 @@ BLE advert の復号は link secret と 1 で送信した nonce から導出し�
 ## 参考資料
 
 - [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid)
+- [Client to Authenticator Protocol (CTAP) Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)
 - [The Noise Protocol Framework](http://www.noiseprotocol.org/noise.html)
 - [携帯電話の Passkey はもう使えるメモ](https://zenn.dev/okuoku/scraps/35d81e1337262f)
-- [Client to Authenticator Protocol (CTAP)
-  Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)
