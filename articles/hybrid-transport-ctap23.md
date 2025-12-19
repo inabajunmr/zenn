@@ -16,7 +16,7 @@ Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-2025
 ## [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://zenn.dev/inabajunmr/articles/hybrid-transport-ctap) との変更点
 
 - Digital Credential API を前提とした記載が追加された
-  - CTAP メッセージだけではなく Hybrid Transport のチャネルで Digital Credential のメッセージもやり取りできる
+  - CTAP メッセージだけではなく Hybrid Transport のチャネルで Digital Credential のメッセージもやり取りをする際のメッセージが定義された
 - メッセージ自体をやり取りする経路として、BLE での接続が追加された
   - Tunnel Service で WebSocket を使って、をせずに BLE だけで全部のやり取りをしてしまうパターンができた
   - 通信経路として 'tunnel service, or use local communication (e.g. Bluetooth Low Energy (BLE), Ultra-wideband (UWB), etc.' とあるので今後なにか増えるのかもしれないが現時点で仕様としては Tunnel Service と BLE のみ記載されている
