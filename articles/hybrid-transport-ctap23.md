@@ -3,7 +3,7 @@ title: "CTAP 2.3 Review Draft の Hybrid Transports"
 emoji: "💋"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["authentication", "ctap"]
-published: false
+published: true
 ---
 
 [Digital Identity 技術勉強会 #iddance Advent Calendar 2025](https://qiita.com/advent-calendar/2025/iddance) 23 日目の記事です。
