@@ -13,14 +13,6 @@ published: false
 以下の内容は [Client to Authenticator Protocol (CTAP)
 Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html)を参考にしています。
 
-## よくわからん
-
-- advertisement suffix の構造
-
-## ざっくり
-
-この仕様は PC などのクライアントプラットフォームに対してスマートフォンなどの別のデバイスを認証器として使うときの仕様で、それぞれ [QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-qr-initiated) と [State-assisted Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-state-assisted) に分かれています。
-
 ## [Client to Authenticator Protocol (CTAP) Review Draft, March 21, 2023](https://zenn.dev/inabajunmr/articles/hybrid-transport-ctap) との変更点
 
 - Digital Credential API を前提とした記載が追加された
@@ -28,6 +20,10 @@ Review Draft, October 23, 2025](https://fidoalliance.org/specs/fido-v2.3-rd-2025
 - メッセージ自体をやり取りする経路として、BLE での接続が追加された
   - Tunnel Service で WebSocket を使って、をせずに BLE だけで全部のやり取りをしてしまうパターンができた
   - 通信経路として 'tunnel service, or use local communication (e.g. Bluetooth Low Energy (BLE), Ultra-wideband (UWB), etc.' とあるので今後なにか増えるのかもしれないが現時点で仕様としては Tunnel Service と BLE のみ記載されている
+
+## ざっくり
+
+この仕様は PC などのクライアントプラットフォームに対してスマートフォンなどの別のデバイスを認証器として使うときの仕様で、それぞれ [QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-qr-initiated) と [State-assisted Transactions](https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#hybrid-state-assisted) に分かれています。
 
 ### QR-initiated Transactions
 
@@ -95,9 +91,15 @@ BLE advert には以下のフィールドがあります。
 | nonce                     |                                            |
 | routing ID                | tunnel service に接続する際にわたす        |
 | tunnel service identifier | 利用する tunnel service を決定するための値 |
-| server PSM                | BLE 接続の場合のソケットの識別子           |
+| advertisement suffix      | 追加情報を CBOR で格納できる               |
 
-この値によって通信経路の接続に必要な情報が交換されます。
+チャネルが BLE の場合、ペイロードの末尾に advertisement suffix という CBOR が入ります。この CBOR は BLE の場合以下となります。
+
+| key                             | value                     | desc                                              |
+| ------------------------------- | ------------------------- | ------------------------------------------------- |
+| 1(transport_channel_identifier) | server PSM(channel_extra) | client platform が Authenticator に接続ために使う |
+
+これら値によって通信経路の接続に必要な情報が交換されます。
 
 ### データ送信チャネルの決定
 
