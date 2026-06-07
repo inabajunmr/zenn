@@ -15,17 +15,17 @@ Hybrid Transport の基本的な流れは以下です。
 
 ## クライアントが表示する QR コード
 
-QR コードには以下の値が含まれています。
+QR コードは以下の値を CBOR でエンコードしたものです。([11.5.1. QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#hybrid-qr-initiated))
 
-| key | value                                                                                           | desc                                                                                                                                                                                         |
-| --- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | 公開鍵                                                                                          | トンネル経由でクライアントプラットフォームと認証器がハンドシェイクを行うのに使う                                                                                                             |
-| 1   | QR secret                                                                                       | BLE advertise の暗号化、復号、認証に使う                                                                                                                                                     |
-| 2   | クライアントプラットフォームが知ってる tunnel service のドメインの数 ※1                         | これが 2 だったらこのプラットフォームは `cable.ua5v.com` と `cable.auth.com` を知っていることになり、後述の BLE advert で 0 を指定すれば前者に、1 を指定すれば後者を利用することが表現できる |
-| 3   | 現在時刻                                                                                        |
-| 4   | プラットフォームが state-assisted transactions に対応しているかどうか（省略可。この例では省略） |
-| 5   | 今後行われる操作についてのヒント（認証 or 登録）                                                |
-| 6   | トランスポートに使われるチャネル                                                                |
+| key | value                                                                                                                                                                                    | desc                                                                                                                                                                                         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | 公開鍵                                                                                                                                                                                   | トンネル経由でクライアントプラットフォームと認証器がハンドシェイクを行うのに使う                                                                                                             |
+| 1   | QR secret                                                                                                                                                                                | BLE advertise の暗号化、復号、認証に使う                                                                                                                                                     |
+| 2   | クライアントプラットフォームが知ってる tunnel service のドメインの数 ※1                                                                                                                  | これが 2 だったらこのプラットフォームは `cable.ua5v.com` と `cable.auth.com` を知っていることになり、後述の BLE advert で 0 を指定すれば前者に、1 を指定すれば後者を利用することが表現できる |
+| 3   | 現在時刻                                                                                                                                                                                 |
+| 4   | プラットフォームが state-assisted transactions に対応しているかどうか（省略可。この例では省略）                                                                                          |
+| 5   | 今後行われる操作についてのヒント（getAssertion (FIDO2) or makeCredential (FIDO2) or credential presentation (Digital Credentials API) or credential issuance (Digital Credentials API)） |
+| 6   | トランスポートに使われるチャネル                                                                                                                                                         |
 
 ### CBOR の組み立て
 
@@ -93,7 +93,7 @@ a7                       map(7)
     00                   WebSocket
 
   19ffff                 key 65535
-  00                     GREASE
+  00                     GREASE(Authenticator が未知のキーを無視することをチェックするための値)
 ```
 
 これを digitEncode します。
@@ -104,16 +104,8 @@ a7                       map(7)
 4. chunk 長ごとの固定桁数まで左を `0` で埋める
 5. 連結する
 
-CBOR の先頭 7 bytes は
-a7 00 58 21 02 1b bb
-となります。
-これを 8 bytes buffer にいれて
-a7 00 58 21 02 1b bb 00
-とし、これを little-endian uint64 として読むと下位バイトから読むことになるので
-00 bb 1b 02 21 58 00 a7
-となり、これを 10 進数にすると
-52665516608192679
-となります。
+CBOR の先頭 7 bytes は `a7 00 58 21 02 1b bb` となります。
+これを 8 bytes buffer にいれて `a7 00 58 21 02 1b bb 00` とし、これを little-endian uint64 として読むと下位バイトから読むことになるので `00 bb 1b 02 21 58 00 a7` となり、これを 10 進数にすると `52665516608192679` となります。
 
 これを CBOR 全体に適用して FIDO:/ を結合すると
 
@@ -163,7 +155,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%x\n", cborBytes)
 	fmt.Println("FIDO:/" + digitEncode(cborBytes))
 }
 
@@ -174,40 +165,9 @@ func decodeHex(s string) []byte {
 	}
 	return out
 }
-
-func digitEncode(d []byte) string {
-	const chunkSize = 7
-	const chunkDigits = 17
-	const zeros = "00000000000000000"
-
-	var ret string
-	for len(d) >= chunkSize {
-		var chunk [8]byte
-		copy(chunk[:], d[:chunkSize])
-		v := strconv.FormatUint(binary.LittleEndian.Uint64(chunk[:]), 10)
-		ret += zeros[:chunkDigits-len(v)]
-		ret += v
-
-		d = d[chunkSize:]
-	}
-
-	if len(d) != 0 {
-		// partialChunkDigits is the number of digits needed to encode
-		// each length of trailing data from 6 bytes down to zero. I.e.
-		// it's 15, 13, 10, 8, 5, 3, 0 written in hex.
-		const partialChunkDigits = 0x0fda8530
-
-		digits := 15 & (partialChunkDigits >> (4 * len(d)))
-		var chunk [8]byte
-		copy(chunk[:], d)
-		v := strconv.FormatUint(binary.LittleEndian.Uint64(chunk[:]), 10)
-		ret += zeros[:digits-len(v)]
-		ret += v
-	}
-
-	return ret
-}
 ```
+
+digitEncode は [11.5.1. QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#hybrid-qr-initiated) のサンプルコードを参照してください。
 
 ## BLE Advert
 
@@ -280,27 +240,7 @@ if err != nil {
 fmt.Printf("%x\n", eidKey)
 ```
 
-`derive` は CTAP2 のサンプルコードそのままです。
-
-```go
-type keyPurpose int
-
-const (
-	keyPurposeEIDKey keyPurpose = 1
-	keyPurposeTunnelID keyPurpose = 2
-	keyPurposePSK keyPurpose = 3
-)
-
-func derive(ikm, salt []byte, purpose keyPurpose, n int) ([]byte, error) {
-	var purpose32 [4]byte
-	purpose32[0] = byte(purpose)
-
-	reader := hkdf.New(sha256.New, ikm, salt, purpose32[:])
-	ret := make([]byte, n)
-	_, err := io.ReadFull(reader, ret)
-	return ret, err
-}
-```
+derive は [11.5.1. QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#hybrid-qr-initiated) のサンプルコードを参照してください。
 
 OKM の前半を使って暗号文を復号します。
 OKM の後半は HMAC tag の検証に使います。
@@ -309,38 +249,11 @@ OKM の後半は HMAC tag の検証に使います。
 AES-Decrypt(OKM[0:32], 9f4bc7c7ed77b8a021ba504084f19c55)
 ```
 
-CTAP2 のサンプルコードでは tag の検証と AES 復号がこのように記載されています。
-
-```go
-func trialDecrypt(eidKey *[64]byte, ciphertext []byte) []byte {
-	if len(ciphertext) != 20 {
-		return nil
-	}
-
-	mac := hmac.New(sha256.New, eidKey[32:])
-	mac.Write(ciphertext[:16])
-	if expectedMAC := mac.Sum(nil); !bytes.Equal(expectedMAC[:4], ciphertext[16:]) {
-		return nil
-	}
-
-	block, err := aes.NewCipher(eidKey[:32])
-	if err != nil {
-		panic(err)
-	}
-
-	var ret [16]byte
-	block.Decrypt(ret[:], ciphertext[:16])
-	if ret[0] != 0 {
-		return nil
-	}
-
-	return ret[:]
-}
-```
+CTAP2 のサンプルコードでは tag の検証と AES 復号が trialDecrypt 関数として記載されています。（[11.5.1. QR-initiated Transactions](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#hybrid-qr-initiated)）
 
 結果が `ab2a9e89` なら、BLE Advert の末尾 4 bytes と一致します。
 
-BLE Advert を復号すると
+このように BLE Advert(`9f4bc7c7ed77b8a021ba504084f19c55`) を復号すると
 
 ```
 006832febb84eab2ff632c4d58880100
@@ -372,7 +285,7 @@ wss://{tunnel domain}/cable/connect/{routing id}/{tunnel id}
 wss://cable.auth.com/cable/connect/4d5888/95074c89b06c2eb6bd4d79566d38dbf0
 ```
 
-tunnel ID の 95074c89b06c2eb6bd4d79566d38dbf0 は QR Secret から導出できます。
+tunnel ID の `95074c89b06c2eb6bd4d79566d38dbf0` は QR Secret から導出できます。
 
 keyPurposeTunnelID が 2 なので
 
@@ -387,7 +300,7 @@ T(1) = HMAC-SHA256(PRK, T(0) || info || 0x01)
 OKM = T(1) の先頭 16 bytes が tunnel ID(95074c89b06c2eb6bd4d79566d38dbf0) となる
 ```
 
-Go だと以下です。
+となります。
 
 ```go
 qrSecret := decodeHex("97aa809b276911764f20b2921b6c7539")
@@ -420,7 +333,7 @@ KNpsk0:
 | `ee`  | メッセージの暗号化に使う鍵を導出するために受け取った公開鍵（e）と、自身で生成した秘密鍵から生成した共有秘密                        |
 | `se`  | メッセージの暗号化に使う鍵を導出するために受け取った公開鍵（e）と、QR コードに埋め込んだ公開鍵の対になる秘密鍵から生成した共有秘密 |
 
-PSK は QR Secret(97aa809b276911764f20b2921b6c7539) と復号した BLE Advert(006832febb84eab2ff632c4d58880100)から導出します。
+PSK は QR Secret(`97aa809b276911764f20b2921b6c7539`) と復号した BLE Advert(`006832febb84eab2ff632c4d58880100`)から導出します。
 
 ```
 # Extract
@@ -507,7 +420,6 @@ noiseState に QR コードで送信した公開鍵を混ぜます。
 // mixHash(uncompressed client static public key)
 x,y = uncompress(h'021bbbd2af0fab1596103e86e66aa242b0e6d935c8982229fe106aecdef3542049')
 noiseState.handshakeHash = SHA256(noiseState.handshakeHash || 04 || x || y)
-
 ```
 
 PSK を noiseState に混ぜます。
@@ -533,10 +445,9 @@ noiseState.symmetricKey = out[64:96] = T(3)
 noiseState.nonce = 0
 
 noiseState.handshakeHash = SHA256(noiseState.handshakeHash || tempHash)
-
 ```
 
-先ほど生成したキーペアの公開鍵を transcript hash に混ぜます。
+先ほど生成したキーペアの公開鍵を handshakeHash に混ぜます。
 
 ```
 
@@ -561,13 +472,12 @@ out = T(1) || T(2)
 noiseState.chainingKey = out[0:32] = T(1)
 noiseState.symmetricKey = out[32:64] = T(2)
 noiseState.nonce = 0
-
 ```
 
+mixKey、mixHash とこのあと出てくる mixKeyAndHash、decryptAndHash の定義は [The Noise Protocol Framework の 5.2. The SymmetricState object](https://noiseprotocol.org/noise.html#the-symmetricstate-object) を参照して下さい。
 最初のメッセージにペイロードはないので空の payload を暗号化して AES-GCM の AEAD タグをつけます。
 
 ```
-
 // AEAD tag
 AES-GCM-Seal(
 key = noiseState.symmetricKey,
@@ -576,13 +486,14 @@ plaintext = empty,
 associatedData = noiseState.handshakeHash
 )
 = f8f93344c8213dd9e0e6c67c29139e
-
 ```
 
 payload が空なので暗号文はなしです。
 ephemeral public key と AEAD tag を結合して noise の最初のメッセージができます。
 
+```
 0469361c21990613e68103b62480f865b2fac4e9101a7bc83a0aa6bbb7d17988ccae1833a49ae91cca2200ed650d0ee1ac0030e7eabb1b7128bb0884362da2236653 || f8f93344c8213dd9e0e6c67c29139e
+```
 
 ここまでを Go で書くと以下のようになります。
 
@@ -717,33 +628,25 @@ fmt.Printf("%x\n", noiseState.handshakeHash)
 Initial message に対して Authenticator が返してきたメッセージが
 
 ```
-
 043e506f57ca06d713b770fb99560f6db4d9ff8cff7c55f96220f48dbe635ced8dd95cae1a8c6d8f273a297e7c00ac6872badfa377f872dc8c076c21679ce19b5605d73235109111433fade982b0918e17
-
 ```
 
 であるとします。
 
 ```
-
 <- e, ee, se
-
 ```
 
 なのでまず Authenticator の ephemeral public key が来ます。
 
 ```
-
 043e506f57ca06d713b770fb99560f6db4d9ff8cff7c55f96220f48dbe635ced8dd95cae1a8c6d8f273a297e7c00ac6872badfa377f872dc8c076c21679ce19b56
-
 ```
 
 残りが payload と AEAD のタグですが、AES-GCM の場合 16 bytes なので payload は空です。
 
 ```
-
 05d73235109111433fade982b0918e17
-
 ```
 
 ee / se を計算します。
@@ -762,7 +665,7 @@ se:
   )
 ```
 
-Go だと `ee` と `se` の計算は以下です。
+Go だと `ee` と `se` の計算はこうなります。
 
 ```go
 func ecdhSecret(priv *ecdsa.PrivateKey, pub *ecdsa.PublicKey) ([]byte, error) {
@@ -797,7 +700,7 @@ if err != nil {
 
 次に、Authenticator から受け取った `e`、`ee`、`se` を順番に Noise State に混ぜます。
 
-`e` は transcript hash と chaining key の両方に混ぜます。`ee` と `se` は `mixKey` で chaining key に混ぜます。
+`e` は handshakeHash と chaining key の両方に混ぜます。`ee` と `se` は `mixKey` で chaining key に混ぜます。
 
 ```text
 // MixHash(responder e public)
@@ -845,7 +748,7 @@ plaintext = AES-GCM-Open(
 
 noiseState.nonce += 1
 
-// DecryptAndHash なので、復号できたら ciphertext も transcript hash に混ぜる
+// DecryptAndHash なので、復号できたら ciphertext も handshakeHash に混ぜる
 noiseState.handshakeHash = SHA256(noiseState.handshakeHash || response ciphertext)
 ```
 
@@ -1059,7 +962,6 @@ a2015861a50182684649444f5f325f30684649444f5f325f310282696c61726765426c6f62637072
 ```
 
 となります。
-Go だと以下です。
 
 ```go
 func removePadding(padded []byte) ([]byte, error) {
@@ -1095,6 +997,8 @@ a2 # 10100010 で先頭が 101 なので map、00010 なので 2 pairs
     64 63746170 # 01100100 で先頭が 011 なので text string、00100 なので長さ 4 bytes。63746170 は ASCII で "ctap"
     62 6463     # 01100010 で先頭が 011 なので text string、00010 なので長さ 2 bytes。6463 は ASCII で "dc"
 ```
+
+この CBOR の定義は[11.5.1.2. Data Transfer](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#hybrid-data-transfer)を参照してください。
 
 #### getInfo reply message
 
@@ -1153,12 +1057,14 @@ a5 # 10100101 で先頭が 101 なので map、00101 なので 5 pairs
 }
 ```
 
+authenticatorGetInfo の定義は[6.4. authenticatorGetInfo (0x04)](https://fidoalliance.org/specs/fido-v2.3-ps-20260226/fido-client-to-authenticator-protocol-v2.3-ps-20260226.html#authenticatorGetInfo)を参照してください。
+
 #### getAssertion
 
 authenticatorGetAssertion のリクエストを組み立てます。
 
 今回は rpId、clientDataHash、options からなるリクエストを組み立てます。
-まず clientDataJSON を組み立てます。
+まず [clientDataJSON](https://www.w3.org/TR/webauthn-3/#dictdef-collectedclientdata) を組み立てます。
 
 ```
 {
@@ -1180,17 +1086,10 @@ challenge は以下を Base64URL encode したものです。
 c6d10de1fc2d9bcffe91bd86800f1901760338fd70ca09c9e0c5b163a6ef0fdd
 ```
 
-challenge bytes から base64url にするとこうなります。
-
 ```go
 challenge := decodeHex("2cef11c80b793ff7f7c81e1bdbc9a093903a74a62c365bd177838d5d37841a53")
 challengeB64 := base64.RawURLEncoding.EncodeToString(challenge)
 fmt.Println(challengeB64)
-```
-
-clientDataHash はこう確認できます。
-
-```go
 clientDataJSON := []byte(`{"type":"webauthn.get","challenge":"LO8RyAt5P_f3yB4b28mgk5A6dKYsNlvRd4ONXTeEGlM","origin":"https://example.com"}`)
 clientDataHash := sha256.Sum256(clientDataJSON)
 fmt.Printf("%x\n", clientDataHash[:])
@@ -1231,30 +1130,7 @@ a3 # 10100011 で先頭が 101 なので map、00011 なので 3 pairs
 02a3016b6578616d706c652e636f6d025820c6d10de1fc2d9bcffe91bd86800f1901760338fd70ca09c9e0c5b163a6ef0fdd05a1627576f5
 ```
 
-CBOR 部分を Go で作るとこうです。
-
-```go
-canonicalCBOR, err := cbor.CanonicalEncOptions().EncMode()
-if err != nil {
-	panic(err)
-}
-
-ctapMap := map[uint64]any{
-	1: "example.com",
-	2: clientDataHash[:],
-	5: map[string]bool{"uv": true},
-}
-
-ctapCBOR, err := canonicalCBOR.Marshal(ctapMap)
-if err != nil {
-	panic(err)
-}
-
-ctapRequest := append([]byte{0x02}, ctapCBOR...)
-fmt.Printf("%x\n", ctapRequest)
-```
-
-CTAP request に tunnel message type の `01` をつけて padding したものを writeKey で暗号化します。client から送る最初のリクエストなので writeSeq は 0 で、
+CTAP request に tunnel message type の `01` をつけて padding したものを writeKey で暗号化します。client から送る最初のリクエストなので writeSeq は 0 です。
 
 ```go
 tunnelPlaintext := append([]byte{0x01}, ctapRequest...)
@@ -1289,9 +1165,7 @@ AES-GCM-Seal(
 )=235220c6e1ef1d414abf8a7ce43032f65fabe42c59911018c5ab1a8f71a853a07aa6560bfb50f483e27d8335537e8d2a531e599cd7d8ab9ad279218ab442f5996be8dec747bf3b87613a321481fc26cd
 ```
 
-となります。最後の16bytesはタグです。これを tunnel に流します。
-
-Go だとこうです。`writeKey` は Noise handshake 後の `split()` で得た client -> authenticator 用の鍵です。
+となります。最後の16bytesはタグです。これを tunnel に流します。`writeKey` は Noise handshake 後の `split()` で得た client -> authenticator 用の鍵です。
 
 ```go
 block, err := aes.NewCipher(writeKey)
